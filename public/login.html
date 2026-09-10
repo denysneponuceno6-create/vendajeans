@@ -124,7 +124,7 @@ button.entrar:disabled{opacity:.55;cursor:progress;}
   var btn = document.getElementById("btn");
   var erroEl = document.getElementById("erro");
   var campo2fa = document.getElementById("campo2fa");
-  var proximo = new URLSearchParams(location.search).get("proximo") || "/painel";
+  var proximo = new URLSearchParams(location.search).get("proximo") || "/admin";
 
   function cookie(nome){
     var partes = (document.cookie || "").split(";");

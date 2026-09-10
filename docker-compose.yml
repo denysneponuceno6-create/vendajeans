@@ -1,0 +1,34 @@
+# ============================================================
+# Postgres local para desenvolvimento.
+#
+#   docker compose up -d
+#   npm run setup
+#   npm run dev
+#
+# Só o banco roda em container: a aplicação continua rodando no
+# Node da máquina, para você editar e reiniciar sem rebuild.
+# ============================================================
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: lojajeans-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lojajeans
+      POSTGRES_PASSWORD: lojajeans
+      POSTGRES_DB: lojajeans
+      # pt_BR não existe na imagem alpine; C.UTF-8 ordena bem o suficiente
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - dados:/var/lib/postgresql/data
+    healthcheck:
+      # sem isso o `npm run setup` tenta conectar antes de o banco aceitar
+      test: ["CMD-SHELL", "pg_isready -U lojajeans -d lojajeans"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  dados:

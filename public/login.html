@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Entrar — Central de Marketing e Vendas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#15131F; --ink-2:#201C30; --ink-soft:#6B6680;
+  --paper:#FAF8F3; --paper-dim:#F1EDE3; --line:#E5E0D3; --white:#fff;
+  --brass:#C9A46A; --brass-deep:#A9803F; --brass-pale:#F1E4C8;
+  --ok:#2E7D4F; --danger:#B4432E; --danger-pale:#FBE7E2;
+  --font-d:'Poppins',sans-serif; --font-b:'Inter',sans-serif; --font-m:'Space Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:var(--font-b);background:var(--ink);color:var(--ink);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(201,164,106,.18), transparent 55%),
+    radial-gradient(ellipse at 85% 100%, rgba(201,164,106,.10), transparent 50%);
+}
+.card{
+  width:100%;max-width:410px;background:var(--paper);border-radius:20px;
+  padding:38px 34px 30px;box-shadow:0 26px 70px rgba(0,0,0,.42);
+  border:1px solid rgba(255,255,255,.08);
+}
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:26px;}
+.brand .mark{
+  width:44px;height:44px;border-radius:12px;flex:none;
+  background:linear-gradient(140deg,var(--brass),var(--brass-deep));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-d);font-weight:800;color:#fff;font-size:1.15rem;
+  box-shadow:0 6px 16px rgba(169,128,63,.35);
+}
+.brand h1{font-family:var(--font-d);font-size:1.06rem;font-weight:700;letter-spacing:-.01em;}
+.brand p{font-size:.74rem;color:var(--ink-soft);margin-top:1px;}
+.field{margin-bottom:15px;}
+label{display:block;font-size:.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--ink-soft);margin-bottom:6px;}
+input{
+  width:100%;padding:12px 13px;border-radius:11px;border:1.5px solid var(--line);
+  background:var(--white);font-family:var(--font-b);font-size:.92rem;color:var(--ink);
+  transition:border-color .15s, box-shadow .15s;
+}
+input:focus{outline:none;border-color:var(--brass);box-shadow:0 0 0 3px var(--brass-pale);}
+.pw-wrap{position:relative;}
+.pw-wrap input{padding-right:52px;}
+.pw-toggle{
+  position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  border:none;background:none;color:var(--ink-soft);font-size:.7rem;font-weight:700;
+  padding:8px 9px;border-radius:7px;cursor:pointer;
+}
+.pw-toggle:hover{background:var(--paper-dim);color:var(--ink);}
+button.entrar{
+  width:100%;padding:13px;border:none;border-radius:11px;margin-top:6px;
+  background:var(--ink);color:#fff;font-family:var(--font-d);font-weight:700;
+  font-size:.92rem;cursor:pointer;transition:.15s;
+}
+button.entrar:hover{background:var(--ink-2);}
+button.entrar:disabled{opacity:.55;cursor:progress;}
+.erro{
+  background:var(--danger-pale);color:var(--danger);border:1px solid rgba(180,67,46,.25);
+  border-radius:10px;padding:10px 12px;font-size:.8rem;font-weight:600;
+  margin-bottom:14px;display:none;
+}
+.erro.show{display:block;}
+.nota{
+  margin-top:22px;padding-top:16px;border-top:1px dashed var(--line);
+  font-size:.72rem;color:var(--ink-soft);line-height:1.55;
+}
+.nota code{font-family:var(--font-m);background:var(--paper-dim);
+  padding:1px 5px;border-radius:4px;font-size:.68rem;}
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">
+      <div class="mark">LJ</div>
+      <div>
+        <h1>Loja do Jeans</h1>
+        <p>Central de Marketing e Vendas</p>
+      </div>
+    </div>
+
+    <div class="erro" id="erro" role="alert"></div>
+
+    <form id="form" autocomplete="on">
+      <div class="field">
+        <label for="usuario">Usuário</label>
+        <input type="text" id="usuario" name="username" autocomplete="username"
+               required autofocus spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="senha">Senha</label>
+        <div class="pw-wrap">
+          <input type="password" id="senha" name="password" autocomplete="current-password" required>
+          <button type="button" class="pw-toggle" id="verSenha" aria-label="Mostrar senha">VER</button>
+        </div>
+      </div>
+      <div class="field" id="campo2fa" style="display:none;">
+        <label for="codigo">Código do autenticador</label>
+        <input type="text" id="codigo" inputmode="numeric" autocomplete="one-time-code"
+               maxlength="6" placeholder="000000" spellcheck="false">
+      </div>
+      <button type="submit" class="entrar" id="btn">Entrar</button>
+    </form>
+
+    <p class="nota">
+      Acesso restrito à equipe da loja. Cada pessoa tem login próprio: é assim que
+      o registro de auditoria consegue dizer <em>quem</em> fez cada alteração.
+      Senhas ficam guardadas com <code>PBKDF2</code> — nunca em texto puro.
+    </p>
+  </main>
+
+<script>
+(function(){
+  "use strict";
+  var form = document.getElementById("form");
+  var btn = document.getElementById("btn");
+  var erroEl = document.getElementById("erro");
+  var campo2fa = document.getElementById("campo2fa");
+  var proximo = new URLSearchParams(location.search).get("proximo") || "/painel";
+
+  function cookie(nome){
+    var partes = (document.cookie || "").split(";");
+    for(var i=0;i<partes.length;i++){
+      var p = partes[i], k = p.indexOf("=");
+      if(k>0 && p.slice(0,k).trim() === nome){
+        try { return decodeURIComponent(p.slice(k+1).trim()); } catch(e){ return null; }
+      }
+    }
+    return null;
+  }
+
+  document.getElementById("verSenha").addEventListener("click", function(){
+    var s = document.getElementById("senha");
+    var mostrando = s.type === "text";
+    s.type = mostrando ? "password" : "text";
+    this.textContent = mostrando ? "VER" : "OCULTAR";
+    this.setAttribute("aria-label", mostrando ? "Mostrar senha" : "Ocultar senha");
+    s.focus();
+  });
+
+  function mostrarErro(msg){
+    erroEl.textContent = msg;
+    erroEl.classList.add("show");
+  }
+  function liberar(){ btn.disabled = false; btn.textContent = "Entrar"; }
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    erroEl.classList.remove("show");
+    btn.disabled = true;
+    btn.textContent = "Entrando...";
+
+    var corpo = {
+      usuario: document.getElementById("usuario").value,
+      senha: document.getElementById("senha").value
+    };
+    var codigo = document.getElementById("codigo").value.trim();
+    if(codigo) corpo.codigo = codigo;
+
+    fetch("/api/login", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","X-CSRF-Token": cookie("csrf") || ""},
+      credentials:"same-origin",
+      body: JSON.stringify(corpo)
+    })
+    .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
+    .then(function(res){
+      if(res.ok){ location.href = proximo; return; }
+
+      /* A conta pede segundo fator: mostra o campo e devolve o foco. */
+      if(res.d.detalhes && res.d.detalhes.precisa2fa){
+        campo2fa.style.display = "block";
+        document.getElementById("codigo").focus();
+        mostrarErro(res.d.erro || "Informe o código do autenticador.");
+        liberar();
+        return;
+      }
+
+      mostrarErro(res.d.erro || "Não foi possível entrar.");
+      liberar();
+      document.getElementById("senha").value = "";
+      document.getElementById("senha").focus();
+    })
+    .catch(function(){
+      mostrarErro("Servidor fora do ar. Tente de novo em instantes.");
+      liberar();
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2988 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel do Catálogo — LOJA DO JEANS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#15131F; --ink-2:#201C30; --ink-soft:#6B6680;
+  --paper:#FAF8F3; --paper-dim:#F1EDE3; --line:#E5E0D3; --white:#fff;
+  --brass:#C9A46A; --brass-deep:#A9803F; --brass-pale:#F1E4C8;
+  --ok:#2E7D4F; --ok-pale:#E4F3EA; --danger:#B4432E; --danger-pale:#FBE7E2; --info:#2E5F9E; --info-pale:#E4EDF7;
+  --font-d:'Poppins',sans-serif; --font-b:'Inter',sans-serif; --font-m:'Space Mono',monospace;
+  --radius:14px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+body{margin:0;font-family:var(--font-b);background:var(--paper-dim);color:var(--ink);}
+h1,h2,h3{font-family:var(--font-d);margin:0;}
+button{font:inherit;cursor:pointer;}
+input,select,textarea{font:inherit;}
+::-webkit-scrollbar{height:8px;width:8px;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+
+/* ===== header ===== */
+header{
+  background:var(--ink);color:var(--paper);padding:14px 24px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:30;box-shadow:0 4px 14px rgba(0,0,0,.18);
+}
+header h1{font-size:1.05rem;font-weight:800;letter-spacing:-.01em;}
+header .sub{font-family:var(--font-m);font-size:.68rem;color:var(--brass);letter-spacing:.06em;}
+.spacer{flex:1;}
+.hbtn{
+  display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;
+  font-weight:700;font-size:.82rem;border:1.5px solid rgba(255,255,255,.25);
+  background:transparent;color:var(--paper);transition:.15s;white-space:nowrap;
+}
+.hbtn:hover{background:rgba(255,255,255,.1);}
+.hbtn.primary{background:var(--brass);border-color:var(--brass);color:var(--ink);}
+.hbtn.primary:hover{filter:brightness(1.06);}
+.hbtn.ghost-danger{border-color:rgba(180,67,46,.5);color:#f0b3a4;}
+#fileInput{display:none;}
+.save-status{font-family:var(--font-m);font-size:.66rem;color:var(--brass-pale);opacity:.8;}
+.gsearch{position:relative;}
+.gsearch input{padding:9px 14px 9px 34px;border-radius:100px;border:1.5px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.08);color:var(--paper);font-size:.8rem;width:200px;}
+.gsearch input::placeholder{color:rgba(255,255,255,.45);}
+.gsearch svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:rgba(255,255,255,.5);}
+.gsearch-results{position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--white);color:var(--ink);
+  border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.25);max-height:60vh;overflow-y:auto;display:none;z-index:60;min-width:320px;}
+.gsearch-results.open{display:block;}
+.gsearch-results .gr-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--paper-dim);}
+.gsearch-results .gr-item:hover{background:var(--paper-dim);}
+.gsearch-results .gr-item img{width:34px;height:34px;border-radius:6px;object-fit:cover;background:var(--brass-pale);flex:none;}
+.gsearch-results .gr-item .meta{font-size:.72rem;color:var(--ink-soft);}
+.gsearch-results .empty{padding:16px;font-size:.8rem;color:var(--ink-soft);text-align:center;}
+
+/* ===== nav / layout ===== */
+.mainnav{background:var(--white);border-bottom:1px solid var(--line);position:sticky;top:57px;z-index:25;}
+.mainnav-inner{max-width:1240px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:0 20px;}
+.mnav-btn{flex:none;padding:14px 16px;border:none;background:none;font-weight:700;font-size:.82rem;
+  color:var(--ink-soft);border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.mnav-btn.active{color:var(--ink);border-color:var(--brass);}
+.mnav-btn .badge{background:var(--brass-pale);color:var(--brass-deep);font-family:var(--font-m);font-size:.62rem;
+  padding:1px 6px;border-radius:100px;font-weight:700;}
+
+.wrap{max-width:1240px;margin:0 auto;padding:22px 20px 100px;}
+.page{display:none;}
+.page.active{display:block;animation:fadein .18s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+.section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;flex-wrap:wrap;}
+.section-title h2{font-size:1.2rem;}
+.section-title p{margin:2px 0 0;font-size:.8rem;color:var(--ink-soft);}
+
+/* ===== dashboard ===== */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:26px;}
+.stat-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;
+  box-shadow:0 2px 8px rgba(21,19,31,.04);}
+.stat-card .num{font-family:var(--font-d);font-weight:800;font-size:1.7rem;line-height:1;}
+.stat-card .lbl{font-size:.74rem;color:var(--ink-soft);margin-top:6px;font-weight:600;}
+.stat-card.warn .num{color:var(--danger);}
+.stat-card.ok .num{color:var(--ok);}
+.stat-card.info .num{color:var(--info);}
+.dash-cols{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;}
+@media (max-width:820px){.dash-cols{grid-template-columns:1fr;}}
+.panel{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;
+  box-shadow:0 2px 8px rgba(21,19,31,.04);margin-bottom:18px;}
+.panel h3{font-size:.92rem;margin-bottom:12px;}
+.mini-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--paper-dim);font-size:.82rem;}
+.mini-row:last-child{border-bottom:none;}
+.mini-row .tag{font-family:var(--font-m);font-size:.68rem;padding:2px 8px;border-radius:100px;background:var(--brass-pale);color:var(--brass-deep);font-weight:700;}
+.mini-row .tag.on{background:var(--ok-pale);color:var(--ok);}
+.mini-row .tag.off{background:var(--paper-dim);color:var(--ink-soft);}
+
+/* ===== store tabs + toolbar (catálogo) ===== */
+.store-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:18px;}
+.store-tab{
+  flex:none;padding:10px 18px;border-radius:100px;border:1.5px solid var(--line);
+  background:var(--white);font-weight:700;font-size:.82rem;color:var(--ink-soft);white-space:nowrap;
+}
+.store-tab.active{background:var(--ink);border-color:var(--ink);color:var(--white);}
+.store-tab .n{font-family:var(--font-m);opacity:.6;margin-right:6px;}
+
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.cat-chip{
+  padding:6px 14px;border-radius:100px;border:1.5px solid var(--line);background:var(--white);
+  font-size:.76rem;font-weight:700;color:var(--ink-soft);
+}
+.cat-chip.active{background:var(--brass-pale);border-color:var(--brass);color:var(--ink);}
+.add-cat{font-size:.76rem;color:var(--brass-deep);font-weight:700;border:1.5px dashed var(--brass);
+  background:transparent;border-radius:100px;padding:6px 14px;}
+.toolbar .filler{flex:1;}
+.sort-select{padding:7px 10px;border-radius:9px;border:1.5px solid var(--line);background:var(--white);font-size:.78rem;font-weight:600;}
+.bulk-toggle{padding:7px 14px;border-radius:9px;border:1.5px solid var(--line);background:var(--white);font-size:.78rem;font-weight:700;}
+.bulk-toggle.on{background:var(--ink);color:var(--white);border-color:var(--ink);}
+
+.bulkbar{display:none;align-items:center;gap:10px;flex-wrap:wrap;background:var(--ink);color:var(--paper);
+  padding:12px 16px;border-radius:12px;margin-bottom:16px;}
+.bulkbar.show{display:flex;}
+.bulkbar .cnt{font-family:var(--font-m);font-size:.76rem;background:var(--brass);color:var(--ink);padding:4px 10px;border-radius:100px;font-weight:700;}
+.bulkbar button{padding:8px 13px;border-radius:8px;border:1px solid rgba(255,255,255,.25);background:transparent;color:var(--paper);font-size:.76rem;font-weight:700;}
+.bulkbar button:hover{background:rgba(255,255,255,.12);}
+.bulkbar button.danger{border-color:rgba(255,120,90,.5);color:#ffb2a0;}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;}
+.card{
+  background:var(--white);border-radius:var(--radius);border:1px solid var(--line);
+  overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(21,19,31,.05);position:relative;
+}
+.card.selected{outline:2.5px solid var(--brass);outline-offset:-2.5px;}
+.card .checkwrap{position:absolute;top:10px;left:10px;z-index:5;display:none;}
+.card.bulk-on .checkwrap{display:block;}
+.card .checkwrap input{width:20px;height:20px;accent-color:var(--brass-deep);cursor:pointer;}
+.card .star{position:absolute;top:10px;right:10px;z-index:5;}
+.card .media{
+  aspect-ratio:1/1;background:var(--swatch,var(--brass-pale));
+  display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+}
+.card .media img{width:100%;height:100%;object-fit:cover;}
+.card .media svg{width:44%;height:44%;color:rgba(0,0,0,.28);}
+.card .media .oos{position:absolute;inset:0;background:rgba(21,19,31,.5);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:.7rem;font-weight:700;}
+.card .media .badgechip{position:absolute;bottom:8px;left:8px;background:var(--ink);color:#fff;font-size:.64rem;font-weight:700;
+  padding:3px 9px;border-radius:100px;font-family:var(--font-m);letter-spacing:.02em;}
+.card .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:5px;flex:1;}
+.card .cat{font-family:var(--font-m);font-size:.65rem;color:var(--brass-deep);text-transform:uppercase;letter-spacing:.05em;}
+.card .ref{font-family:var(--font-m);font-size:.63rem;color:var(--ink-soft);}
+.card h4{font-size:.86rem;font-weight:700;line-height:1.25;}
+.card .model{font-size:.7rem;color:var(--ink-soft);}
+.card .swatches{display:flex;gap:4px;margin-top:2px;}
+.card .swatches i{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,.15);display:inline-block;}
+.card .price-row{display:flex;align-items:baseline;gap:8px;margin-top:auto;}
+.card .old{font-size:.72rem;color:var(--ink-soft);text-decoration:line-through;}
+.card .now{font-family:var(--font-m);font-weight:700;font-size:.92rem;}
+.card .off{font-size:.66rem;color:var(--ok);font-weight:700;}
+.card .stock{font-size:.7rem;color:var(--ink-soft);}
+.card .stock.low{color:var(--danger);font-weight:700;}
+.card .actions{display:flex;gap:8px;padding:0 14px 14px;}
+.card .actions button{flex:1;padding:8px;border-radius:8px;border:1px solid var(--line);
+  background:var(--paper-dim);font-size:.74rem;font-weight:700;color:var(--ink);}
+.card .actions button.del{color:var(--danger);border-color:rgba(180,67,46,.3);}
+
+.add-card{
+  border:2px dashed var(--brass);border-radius:var(--radius);background:var(--brass-pale);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  min-height:220px;color:var(--brass-deep);font-weight:700;
+}
+
+.empty{text-align:center;padding:60px 20px;color:var(--ink-soft);}
+
+/* ===== categorias page ===== */
+.cat-list{display:flex;flex-direction:column;gap:10px;}
+.cat-row{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--line);
+  border-radius:12px;padding:12px 14px;}
+.cat-row .ico{width:38px;height:38px;border-radius:9px;background:var(--brass-pale);flex:none;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.cat-row .ico img{width:100%;height:100%;object-fit:cover;}
+.cat-row .nm{font-weight:700;font-size:.9rem;}
+.cat-row .desc{font-size:.72rem;color:var(--ink-soft);}
+.cat-row .cnt{font-family:var(--font-m);font-size:.72rem;color:var(--ink-soft);background:var(--paper-dim);
+  padding:3px 9px;border-radius:100px;flex:none;}
+.cat-row .flex1{flex:1;min-width:0;}
+.cat-row .status{font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:100px;flex:none;}
+.cat-row .status.on{background:var(--ok-pale);color:var(--ok);}
+.cat-row .status.off{background:var(--paper-dim);color:var(--ink-soft);}
+.cat-row .rowbtns{display:flex;gap:6px;flex:none;}
+.cat-row .rowbtns button{padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:var(--paper-dim);font-size:.72rem;font-weight:700;}
+.cat-row .rowbtns button.del{color:var(--danger);}
+.cat-row .drag{cursor:grab;color:var(--ink-soft);flex:none;}
+
+/* ===== campanhas page ===== */
+.camp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:24px;}
+.camp-card{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--white);position:relative;}
+.camp-card .top{padding:16px;color:#fff;min-height:90px;display:flex;flex-direction:column;justify-content:flex-end;}
+.camp-card .top .nm{font-family:var(--font-d);font-weight:800;font-size:1rem;}
+.camp-card .top .sub{font-size:.72rem;opacity:.9;}
+.camp-card .bot{padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.camp-card .dates{font-family:var(--font-m);font-size:.68rem;color:var(--ink-soft);}
+.camp-card .stbar{display:flex;justify-content:space-between;align-items:center;}
+.camp-card .stpill{font-size:.66rem;font-weight:700;padding:3px 10px;border-radius:100px;}
+.camp-card .stpill.active{background:var(--ok-pale);color:var(--ok);}
+.camp-card .stpill.inactive{background:var(--paper-dim);color:var(--ink-soft);}
+.camp-card .stpill.scheduled{background:var(--info-pale);color:var(--info);}
+.camp-card .btnrow{display:flex;gap:6px;}
+.camp-card .btnrow button{flex:1;padding:7px;border-radius:8px;border:1px solid var(--line);background:var(--paper-dim);font-size:.72rem;font-weight:700;}
+.camp-card .btnrow button.del{color:var(--danger);}
+.preset-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-bottom:22px;}
+.preset-pill{flex:none;padding:9px 15px;border-radius:100px;border:1.5px dashed var(--brass);background:var(--brass-pale);
+  color:var(--brass-deep);font-size:.78rem;font-weight:700;white-space:nowrap;}
+
+/* ===== color rows in product modal ===== */
+.color-list{display:flex;flex-direction:column;gap:10px;}
+.color-item{border:1px solid var(--line);border-radius:11px;padding:12px;background:var(--paper-dim);}
+.color-item.off{opacity:.55;}
+.color-item .chead{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.color-item .chead input[type=text]{flex:1;padding:8px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--white);}
+.color-item .chead input[type=color]{width:36px;height:36px;border:none;border-radius:8px;background:none;padding:0;}
+.color-item .chead .rm{flex:none;background:none;border:none;color:var(--danger);font-weight:700;font-size:.75rem;}
+
+/* miniatura + campos comerciais da cor */
+.color-item .cthumb{
+  width:46px;height:46px;flex:none;border-radius:9px;overflow:hidden;border:1.5px dashed var(--brass);
+  background:var(--white);display:flex;align-items:center;justify-content:center;position:relative;
+  color:var(--brass-deep);font-size:.56rem;font-weight:700;text-align:center;line-height:1.15;padding:3px;
+}
+.color-item .cthumb img{width:100%;height:100%;object-fit:cover;}
+.color-item .cthumb .x{
+  position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:none;
+  background:var(--danger);color:#fff;font-size:.62rem;font-weight:700;line-height:1;padding:0;
+}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:9px;}
+@media (max-width:640px){.cgrid{grid-template-columns:repeat(2,1fr);}}
+.cgrid .cf{display:flex;flex-direction:column;gap:3px;}
+.cgrid .cf label{font-size:.6rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;}
+.cgrid .cf input,.cgrid .cf select{
+  padding:6px 8px;border-radius:7px;border:1.5px solid var(--line);background:var(--white);font-size:.76rem;width:100%;
+}
+.color-item .cfoot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:9px;
+  border-top:1px dashed var(--line);padding-top:9px;}
+.color-item .cfoot .mini{
+  padding:5px 10px;border-radius:7px;border:1px solid var(--line);background:var(--white);
+  font-size:.7rem;font-weight:700;color:var(--ink-soft);
+}
+.color-item .cfoot .mini:hover{background:var(--brass-pale);color:var(--brass-deep);}
+.color-item .cfoot .mini.on{background:var(--ok-pale);color:var(--ok);border-color:rgba(46,125,79,.3);}
+.color-item .cfoot .mini.off{background:var(--paper-dim);color:var(--ink-soft);}
+.color-item .cfoot .tot{font-family:var(--font-m);font-size:.68rem;color:var(--ink-soft);margin-left:auto;}
+.color-item .cfoot .tot b{color:var(--ink);}
+.color-item .cfoot .tot.zero b{color:var(--danger);}
+
+/* adicionar tamanhos sem prompt() */
+.sizeadd{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+.sizeadd input{width:92px;padding:6px 8px;border-radius:7px;border:1.5px solid var(--line);background:var(--white);font-size:.76rem;}
+.sizeadd .preset{
+  padding:5px 10px;border-radius:100px;border:1.5px dashed var(--brass);background:transparent;
+  color:var(--brass-deep);font-size:.68rem;font-weight:700;
+}
+.sizeadd .preset:hover{background:var(--brass-pale);}
+.size-stock-row{display:flex;gap:6px;flex-wrap:wrap;}
+.size-stock-row .ss{position:relative;}
+.size-stock-row .ss .xs{
+  position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;border:none;
+  background:var(--ink-soft);color:#fff;font-size:.58rem;line-height:1;padding:0;opacity:0;transition:.12s;
+}
+.size-stock-row .ss:hover .xs{opacity:1;}
+.size-stock-row .ss.zero input{border-color:rgba(180,67,46,.45);color:var(--danger);font-weight:700;}
+
+/* status automáticos no card e no modal */
+.statusrow{display:flex;gap:4px;flex-wrap:wrap;margin-top:2px;}
+.spill{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:100px;letter-spacing:.02em;white-space:nowrap;}
+.spill.oos{background:var(--danger-pale);color:var(--danger);}
+.spill.low{background:#FFF0DC;color:#9A6212;}
+.spill.new{background:var(--info-pale);color:var(--info);}
+.spill.promo{background:var(--ok-pale);color:var(--ok);}
+.spill.last{background:#F5E6FA;color:#7B3E96;}
+.spill.inactive{background:var(--paper-dim);color:var(--ink-soft);}
+.card.inactive-prod{opacity:.6;}
+.card.inactive-prod .media::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(
+  45deg,transparent,transparent 9px,rgba(21,19,31,.06) 9px,rgba(21,19,31,.06) 18px);}
+
+/* aba WhatsApp / divulgação */
+.wpp-preview{
+  background:#E7F6EC;border:1px solid #BFE3CC;border-radius:12px;padding:13px 15px;
+  font-size:.82rem;line-height:1.5;white-space:pre-wrap;color:#123322;margin-bottom:10px;
+  max-height:230px;overflow-y:auto;
+}
+.wpp-link{
+  font-family:var(--font-m);font-size:.68rem;color:var(--ink-soft);background:var(--paper-dim);
+  border:1px solid var(--line);border-radius:9px;padding:9px 11px;word-break:break-all;margin-bottom:10px;
+}
+.wpp-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.wpp-btns button{
+  padding:9px 15px;border-radius:9px;border:1.5px solid var(--line);background:var(--white);
+  font-size:.78rem;font-weight:700;color:var(--ink);
+}
+.wpp-btns button.go{background:#1FA855;border-color:#1FA855;color:#fff;}
+.wpp-btns button:hover{filter:brightness(.97);}
+.varpick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.varpick select{padding:7px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--white);font-size:.78rem;font-weight:600;}
+.size-stock-row .ss{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--white);border:1px solid var(--line);
+  border-radius:8px;padding:6px 8px;min-width:52px;}
+.size-stock-row .ss label{font-size:.6rem;color:var(--ink-soft);font-weight:700;}
+.size-stock-row .ss input{width:100%;padding:3px;border:1px solid var(--line);border-radius:5px;text-align:center;font-size:.75rem;}
+.add-color-btn{font-size:.76rem;font-weight:700;color:var(--brass-deep);border:1.5px dashed var(--brass);background:transparent;
+  border-radius:9px;padding:9px;width:100%;}
+
+.colorpicker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+.cp-item{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:9px 10px;display:flex;align-items:center;gap:8px;}
+.cp-item label{font-size:.68rem;font-weight:700;color:var(--ink-soft);flex:1;}
+.cp-item input[type=color]{width:28px;height:28px;border:none;border-radius:6px;padding:0;flex:none;}
+.cp-item input[type=text]{width:74px;font-family:var(--font-m);font-size:.68rem;padding:5px 6px;border:1px solid var(--line);border-radius:6px;flex:none;}
+
+.store-check-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.store-check{display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--line);border-radius:100px;
+  padding:6px 12px;font-size:.76rem;font-weight:600;}
+.store-check input{accent-color:var(--brass-deep);}
+
+/* ===== modal ===== */
+.overlay{position:fixed;inset:0;background:rgba(21,19,31,.55);display:none;align-items:flex-start;
+  justify-content:center;padding:5vh 16px;overflow-y:auto;z-index:50;}
+.overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:18px;max-width:560px;width:100%;padding:26px;
+  box-shadow:0 24px 60px rgba(0,0,0,.3);margin-bottom:5vh;}
+.modal.wide{max-width:740px;}
+.modal h2{font-size:1.05rem;margin-bottom:4px;}
+.modal .modal-sub{font-size:.76rem;color:var(--ink-soft);margin-bottom:18px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:.74rem;font-weight:700;color:var(--ink-soft);margin-bottom:5px;}
+.field input[type=text],.field input[type=number],.field input[type=date],.field select,.field textarea{
+  width:100%;padding:10px 12px;border-radius:9px;border:1.5px solid var(--line);background:var(--paper-dim);
+}
+.field textarea{resize:vertical;min-height:60px;}
+.field .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.field .hint{font-size:.68rem;color:var(--ink-soft);margin-top:4px;}
+.img-drop{
+  border:1.5px dashed var(--line);border-radius:12px;padding:14px;display:flex;align-items:center;gap:14px;
+  background:var(--paper-dim);cursor:pointer;
+}
+.img-drop .prev{width:64px;height:64px;border-radius:8px;background:var(--brass-pale);flex:none;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.img-drop .prev img{width:100%;height:100%;object-fit:cover;}
+.img-drop .txt{font-size:.78rem;color:var(--ink-soft);}
+.img-drop .txt b{color:var(--ink);}
+#imgFileInput,.hidden-file{display:none;}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-actions button{flex:1;padding:12px;border-radius:9px;font-weight:700;font-size:.86rem;border:none;}
+.btn-cancel{background:var(--paper-dim);color:var(--ink-soft);}
+.btn-save{background:var(--ink);color:var(--paper);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-remove-img{font-size:.72rem;color:var(--danger);font-weight:700;background:none;border:none;padding:4px 0;}
+.tabbed{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--line);}
+.tabbed button{padding:9px 14px;border:none;background:none;font-size:.78rem;font-weight:700;color:var(--ink-soft);
+  border-bottom:2.5px solid transparent;margin-bottom:-1px;}
+.tabbed button.active{color:var(--ink);border-color:var(--brass);}
+.tabpane{display:none;}
+.tabpane.active{display:block;}
+.chiprow{display:flex;flex-wrap:wrap;gap:7px;}
+.chip-toggle{padding:6px 12px;border-radius:100px;border:1.5px solid var(--line);background:var(--white);font-size:.74rem;font-weight:700;color:var(--ink-soft);}
+.chip-toggle.on{background:var(--ink);color:#fff;border-color:var(--ink);}
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0;}
+.switch-row label{font-size:.8rem;font-weight:700;}
+.switch{position:relative;width:42px;height:24px;flex:none;}
+.switch input{opacity:0;width:0;height:0;}
+.switch .slider{position:absolute;inset:0;background:var(--line);border-radius:100px;transition:.2s;cursor:pointer;}
+.switch .slider:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.switch input:checked + .slider{background:var(--ok);}
+.switch input:checked + .slider:before{transform:translateX(18px);}
+
+.confirm-modal .modal{max-width:420px;}
+.confirm-modal p{font-size:.86rem;color:var(--ink-soft);line-height:1.5;}
+.confirm-modal .warn-box{background:var(--danger-pale);color:var(--danger);border-radius:9px;padding:10px 12px;font-size:.78rem;font-weight:600;margin:12px 0;}
+.radio-row{display:flex;flex-direction:column;gap:8px;margin:10px 0;}
+.radio-opt{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;font-size:.82rem;font-weight:600;cursor:pointer;}
+.radio-opt.sel{border-color:var(--brass);background:var(--brass-pale);}
+.radio-opt select{margin-left:auto;}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);
+  padding:12px 20px;border-radius:100px;font-size:.82rem;font-weight:700;box-shadow:0 10px 24px rgba(0,0,0,.25);
+  z-index:80;opacity:0;pointer-events:none;transition:.25s;display:flex;align-items:center;gap:14px;max-width:90vw;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);pointer-events:auto;}
+.toast button{background:var(--brass);color:var(--ink);border:none;border-radius:100px;padding:6px 12px;font-size:.72rem;font-weight:800;flex:none;}
+
+@media (max-width:640px){
+  .modal{padding:20px;}
+  .field .row2,.field .row3{grid-template-columns:1fr;}
+  .gsearch input{width:130px;}
+}
+
+/* ============================================================
+   SISTEMA DE ÍCONES (SVG) — substitui emojis usados como ícone
+============================================================ */
+.ui-icon{
+  width:16px;height:16px;
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;vertical-align:-3px;
+  line-height:0;
+}
+.ui-icon svg{width:100%;height:100%;display:block;}
+.ui-icon--nav{width:18px;height:18px;}
+.ui-icon--sm{width:15px;height:15px;}
+.ui-icon--title{width:20px;height:20px;}
+.mnav-btn .ui-icon{margin-right:6px;}
+button .ui-icon,.hbtn .ui-icon{margin-right:6px;vertical-align:-3px;}
+label .ui-icon{margin-right:5px;}
+.card .star.ui-icon{position:absolute;top:10px;right:10px;z-index:5;width:18px;height:18px;
+  color:var(--brass);filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));margin-right:0;vertical-align:baseline;}
+.cat-row .ico .ui-icon{width:20px;height:20px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Painel do Catálogo</h1>
+    <div class="sub">LOJA DO JEANS · CMS de gerenciamento</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="gsearch">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" id="globalSearch" placeholder="Buscar produto, ref, cor, loja...">
+    <div class="gsearch-results" id="gsearchResults"></div>
+  </div>
+  <span class="save-status" id="saveStatus"></span>
+  <a class="hbtn" href="/marketing" style="text-decoration:none;display:inline-flex;align-items:center;">Marketing</a>
+  <button class="hbtn" data-act="click:fileInput">Carregar</button>
+  <input type="file" id="fileInput" accept="application/json">
+  <button class="hbtn" id="publicarBtn">Salvar no servidor</button>
+  <button class="hbtn primary" id="downloadBtn">Baixar catalog.json</button>
+  <button class="hbtn" id="sairBtn">Sair</button>
+</header>
+
+<nav class="mainnav">
+  <div class="mainnav-inner" id="mainNav">
+    <button type="button" class="mnav-btn active" data-page="dashboard"><span class="ui-icon ui-icon--nav" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg></span> Visão geral</button>
+    <button type="button" class="mnav-btn" data-page="catalogo"><span class="ui-icon ui-icon--nav" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span> Catálogo</button>
+    <button type="button" class="mnav-btn" data-page="categorias"><span class="ui-icon ui-icon--nav" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.6 12.6 12 4H4v8l8.6 8.6a2 2 0 0 0 2.8 0l5.2-5.2a2 2 0 0 0 0-2.8z"/><circle cx="8.4" cy="8.4" r="1.15"/></svg></span> Categorias</button>
+    <button type="button" class="mnav-btn" data-page="campanhas"><span class="ui-icon ui-icon--nav" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8.3"/><circle cx="12" cy="12" r="4.8"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg></span> Campanhas &amp; Temas</button>
+    <button type="button" class="mnav-btn" data-page="config"><span class="ui-icon ui-icon--nav" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.5-2-3.5-2.4 1a7.7 7.7 0 0 0-1.7-1L15 3h-4l-.3 2.9a7.7 7.7 0 0 0-1.7 1l-2.4-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a7.7 7.7 0 0 0 1.7 1L9 21h4l.3-2.9a7.7 7.7 0 0 0 1.7-1l2.4 1 2-3.5z"/></svg></span> Configurações</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ================= DASHBOARD ================= -->
+  <section class="page" data-page="dashboard">
+    <div class="section-title">
+      <div><h2>Visão geral</h2><p>Resumo de todas as lojas, estoques e campanhas.</p></div>
+    </div>
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="dash-cols">
+      <div>
+        <div class="panel">
+          <h3>Produtos com estoque baixo ou esgotado</h3>
+          <div id="dashLowStock"></div>
+        </div>
+        <div class="panel">
+          <h3>Campanhas</h3>
+          <div id="dashCampaigns"></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel">
+          <h3>Lojas</h3>
+          <div id="dashStores"></div>
+        </div>
+        <div class="panel">
+          <h3>Produtos em destaque</h3>
+          <div id="dashFeatured"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CATÁLOGO ================= -->
+  <section class="page" data-page="catalogo">
+    <div class="section-title">
+      <div><h2>Catálogo</h2><p>Produtos, preços, estoque, cores e variações por loja.</p></div>
+    </div>
+    <div class="store-tabs" id="storeTabs"></div>
+    <div class="toolbar" id="catToolbar"></div>
+    <div class="toolbar">
+      <select class="sort-select" id="sortSelect">
+        <option value="manual">Ordem manual</option>
+        <option value="recent">Mais recentes</option>
+        <option value="priceAsc">Menor preço</option>
+        <option value="priceDesc">Maior preço</option>
+        <option value="discount">Maior desconto</option>
+        <option value="featured">Destaques primeiro</option>
+      </select>
+      <button type="button" class="bulk-toggle" id="bulkToggleBtn"><span class="ui-icon ui-icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span> Edição em massa</button>
+      <div class="filler"></div>
+      <span class="save-status" id="gridCount"></span>
+    </div>
+    <div class="bulkbar" id="bulkBar">
+      <span class="cnt" id="bulkCount">0 selecionados</span>
+      <button type="button" id="bulkAllBtn">Selecionar todos</button>
+      <button type="button" id="bulkNoneBtn">Desmarcar todos</button>
+      <button type="button" id="bulkCatBtn">Alterar categoria</button>
+      <button type="button" id="bulkFeatBtn"><span class="ui-icon ui-icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M12 3l2.7 5.9 6.3.7-4.7 4.4 1.3 6.3L12 17.4 6.4 20.3l1.3-6.3L3 9.6l6.3-.7z"/></svg></span> Marcar destaque</button>
+      <button type="button" id="bulkBadgeBtn">Aplicar badge</button>
+      <button type="button" id="bulkOnBtn">Ativar no site</button>
+      <button type="button" id="bulkOffBtn">Tirar do site</button>
+      <button type="button" class="danger" id="bulkDelBtn">Excluir selecionados</button>
+    </div>
+    <div class="grid" id="productGrid"></div>
+  </section>
+
+  <!-- ================= CATEGORIAS ================= -->
+  <section class="page" data-page="categorias">
+    <div class="section-title">
+      <div><h2>Categorias</h2><p>Organize, renomeie e defina a ordem de exibição por loja.</p></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select class="sort-select" id="catPageStoreSel"></select>
+        <button type="button" class="hbtn primary" style="color:var(--ink);background:var(--brass);" id="newCatBtn">+ Nova categoria</button>
+      </div>
+    </div>
+    <div class="cat-list" id="catList"></div>
+  </section>
+
+  <!-- ================= CAMPANHAS ================= -->
+  <section class="page" data-page="campanhas">
+    <div class="section-title">
+      <div><h2>Campanhas &amp; Temas</h2><p>Datas comemorativas, cores e identidade visual sazonal — sem apagar a identidade fixa de cada loja.</p></div>
+      <button type="button" class="hbtn primary" style="color:var(--ink);background:var(--brass);" id="newCampBtn">+ Nova campanha</button>
+    </div>
+    <h3 style="font-size:.85rem;margin-bottom:10px;color:var(--ink-soft);">Modelos prontos (clique para adicionar e personalizar)</h3>
+    <div class="preset-strip" id="presetStrip"></div>
+    <div class="camp-grid" id="campGrid"></div>
+  </section>
+
+  <!-- ================= CONFIGURAÇÕES ================= -->
+  <section class="page" data-page="config">
+    <div class="section-title">
+      <div><h2>Configurações da loja</h2><p>Identidade fixa de cada loja — nome, contato e cores da marca.</p></div>
+      <select class="sort-select" id="cfgStoreSel"></select>
+    </div>
+    <div class="panel" id="cfgPanel"></div>
+    <div class="panel">
+      <h3>Segurança dos dados</h3>
+      <div class="mini-row"><span>Rascunho automático neste navegador</span><span class="tag on">Ativo</span></div>
+      <div class="mini-row"><span>Confirmação antes de ações destrutivas</span><span class="tag on">Ativo</span></div>
+      <div class="mini-row"><span>Desfazer última alteração</span><button type="button" class="hbtn" style="color:var(--ink);border-color:var(--line);" id="undoBtn"><span class="ui-icon ui-icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 10h9a5 5 0 0 1 0 10h-2"/><path d="M8 5 4 10l4 5"/></svg></span> Desfazer última ação</button></div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ MODAL: produto ============ -->
+<div class="overlay" id="overlay">
+  <div class="modal wide">
+    <h2 id="modalTitle">Novo produto</h2>
+    <div class="modal-sub">Preencha os dados comerciais do produto. Campos avançados ajudam a diferenciar produtos parecidos.</div>
+    <div class="tabbed" id="prodTabs">
+      <button type="button" class="active" data-tab="geral">Geral</button>
+      <button type="button" data-tab="cores">Cores &amp; Variações</button>
+      <button type="button" data-tab="detalhes">Detalhes</button>
+      <button type="button" data-tab="vitrine">Vitrine</button>
+      <button type="button" data-tab="whats">WhatsApp &amp; Divulgação</button>
+    </div>
+    <form id="productForm">
+      <div class="tabpane active" data-pane="geral">
+        <div class="field">
+          <label>Foto principal do produto</label>
+          <div class="img-drop" data-act="click:imgFileInput">
+            <div class="prev" id="imgPreview"></div>
+            <div class="txt"><b>Clique para escolher uma foto</b><br>JPG ou PNG · será redimensionada automaticamente</div>
+          </div>
+          <input type="file" id="imgFileInput" accept="image/*">
+          <button type="button" class="btn-remove-img" id="removeImgBtn" style="display:none;">Remover foto</button>
+        </div>
+        <div class="field">
+          <label>Nome do produto</label>
+          <input type="text" id="fName" required placeholder="Ex: Calça Jeans Skinny Cintura Alta">
+        </div>
+        <div class="field row2">
+          <div>
+            <label>Categoria</label>
+            <select id="fCat"></select>
+          </div>
+          <div>
+            <label>Referência / Código</label>
+            <input type="text" id="fRef" placeholder="Ex: CJ-SK-001">
+          </div>
+        </div>
+        <div class="field row3">
+          <div>
+            <label>Preço antigo (R$) — opcional</label>
+            <input type="number" id="fOld" step="0.01" min="0" placeholder="189.90">
+          </div>
+          <div>
+            <label>Preço atual (R$)</label>
+            <input type="number" id="fNow" step="0.01" min="0" required placeholder="139.90">
+          </div>
+          <div>
+            <label>Estoque total</label>
+            <input type="number" id="fStock" min="0" step="1" placeholder="14">
+          </div>
+        </div>
+        <div class="field">
+          <label>Tamanhos (separados por vírgula) — usado quando o produto não tem cores cadastradas</label>
+          <input type="text" id="fSizes" placeholder="36, 38, 40, 42, 44">
+        </div>
+        <div class="field hint" id="stockHint" style="display:none;">O estoque e os tamanhos acima são calculados automaticamente a partir das cores cadastradas na aba "Cores &amp; Variações".</div>
+      </div>
+
+      <div class="tabpane" data-pane="cores">
+        <div class="field">
+          <label>Cores disponíveis</label>
+          <div class="hint" id="colorSummary" style="margin:0 0 10px;"></div>
+          <div class="color-list" id="colorList"></div>
+          <button type="button" class="add-color-btn" id="addColorBtn">+ Adicionar cor</button>
+          <input type="file" id="colorImgInput" accept="image/*" style="display:none;">
+          <datalist id="qualityPresets"></datalist>
+        </div>
+      </div>
+
+      <div class="tabpane" data-pane="whats">
+        <div class="field">
+          <label>Monte a mensagem para o cliente</label>
+          <div class="varpick">
+            <select id="wppColor"></select>
+            <select id="wppSize"></select>
+            <select id="wppOrigin">
+              <option value="instagram">Origem: Instagram</option>
+              <option value="site">Origem: Site</option>
+              <option value="whatsapp">Origem: WhatsApp</option>
+              <option value="loja">Origem: Loja física</option>
+            </select>
+          </div>
+          <div class="wpp-preview" id="wppPreview"></div>
+          <div class="wpp-link" id="wppLink"></div>
+          <div class="wpp-btns">
+            <button type="button" class="go" id="wppOpenBtn">Abrir no WhatsApp</button>
+            <button type="button" id="wppCopyMsgBtn">Copiar mensagem</button>
+            <button type="button" id="wppCopyLinkBtn">Copiar link rastreável</button>
+            <button type="button" id="wppCopyLegendBtn">Copiar legenda do Instagram</button>
+          </div>
+          <div class="hint" style="margin-top:12px;">O link já leva produto, cor, tamanho, SKU e origem. Use um link diferente por canal para descobrir depois qual deles traz mais venda.</div>
+        </div>
+      </div>
+
+      <div class="tabpane" data-pane="detalhes">
+        <div class="field row2">
+          <div>
+            <label>Modelo / Variante</label>
+            <input type="text" id="fModel" placeholder="Ex: Lavagem Clara">
+          </div>
+          <div>
+            <label>Grupo do produto (groupId)</label>
+            <input type="text" id="fGroup" placeholder="Ex: calca-skinny">
+          </div>
+        </div>
+        <div class="field row3">
+          <div><label>Lavagem</label><input type="text" id="fLavagem"></div>
+          <div><label>Corte</label><input type="text" id="fCorte"></div>
+          <div><label>Material</label><input type="text" id="fMaterial"></div>
+        </div>
+        <div class="field row3">
+          <div><label>Modelagem</label><input type="text" id="fModelagem"></div>
+          <div><label>Estampa</label><input type="text" id="fEstampa"></div>
+          <div><label>Coleção</label><input type="text" id="fColecao"></div>
+        </div>
+      </div>
+
+      <div class="tabpane" data-pane="vitrine">
+        <div class="switch-row">
+          <label><span class="ui-icon ui-icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.2 2.4 2.4 4.6-4.8"/></svg></span> Produto ativo no site</label>
+          <label class="switch"><input type="checkbox" id="fActive" checked><span class="slider"></span></label>
+        </div>
+        <div class="switch-row">
+          <label><span class="ui-icon ui-icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M12 3l2.7 5.9 6.3.7-4.7 4.4 1.3 6.3L12 17.4 6.4 20.3l1.3-6.3L3 9.6l6.3-.7z"/></svg></span> Produto em destaque</label>
+          <label class="switch"><input type="checkbox" id="fFeatured"><span class="slider"></span></label>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label>Badge</label>
+          <div class="chiprow" id="badgeChips"></div>
+          <input type="text" id="fBadge" placeholder="Ou escreva um badge personalizado" style="margin-top:8px;">
+        </div>
+        <div class="field row2">
+          <div>
+            <label>Ordem de exibição</label>
+            <input type="number" id="fOrder" step="1" placeholder="1 = aparece primeiro">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" data-act="fn:closeModal">Cancelar</button>
+        <button type="submit" class="btn-save">Salvar produto</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: categoria ============ -->
+<div class="overlay" id="catOverlay">
+  <div class="modal">
+    <h2 id="catModalTitle">Nova categoria</h2>
+    <div class="field">
+      <label>Nome da categoria</label>
+      <input type="text" id="catName" placeholder="Ex: Acessórios">
+    </div>
+    <div class="field">
+      <label>Descrição (opcional)</label>
+      <textarea id="catDesc" placeholder="Breve descrição da categoria"></textarea>
+    </div>
+    <div class="field row2">
+      <div>
+        <label>Ícone (opcional)</label>
+        <input type="text" id="catIcon" placeholder="Ex: Camisetas">
+      </div>
+      <div>
+        <label>Imagem (opcional)</label>
+        <div class="img-drop" data-act="click:catImgInput" style="padding:8px;">
+          <div class="prev" id="catImgPreview" style="width:40px;height:40px;"></div>
+          <div class="txt">Escolher imagem</div>
+        </div>
+        <input type="file" id="catImgInput" accept="image/*" class="hidden-file">
+      </div>
+    </div>
+    <div class="switch-row">
+      <label>Categoria ativa no site</label>
+      <label class="switch"><input type="checkbox" id="catActive" checked><span class="slider"></span></label>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" data-act="fn:closeCatModal">Cancelar</button>
+      <button type="button" class="btn-save" id="catSaveBtn">Salvar categoria</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: excluir categoria ============ -->
+<div class="overlay confirm-modal" id="catDelOverlay">
+  <div class="modal">
+    <h2>Excluir categoria</h2>
+    <p id="catDelText"></p>
+    <div class="radio-row" id="catDelOptions"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" data-act="fn:closeCatDelModal">Cancelar</button>
+      <button type="button" class="btn-danger" id="catDelConfirmBtn">Confirmar exclusão</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: campanha ============ -->
+<div class="overlay" id="campOverlay">
+  <div class="modal wide">
+    <h2 id="campModalTitle">Nova campanha</h2>
+    <div class="modal-sub">A campanha funciona como uma camada visual sobre a identidade fixa de cada loja.</div>
+    <div class="tabbed" id="campTabs">
+      <button type="button" class="active" data-ctab="geral">Geral</button>
+      <button type="button" data-ctab="cores">Cores</button>
+      <button type="button" data-ctab="lojas">Lojas &amp; Ativação</button>
+    </div>
+
+    <div class="tabpane active" data-cpane="geral">
+      <div class="field">
+        <label>Nome interno da campanha</label>
+        <input type="text" id="cpName" placeholder="Ex: Dia das Mães">
+      </div>
+      <div class="field row2">
+        <div><label>Título (banner)</label><input type="text" id="cpTitle" placeholder="Ex: Dia das Mães"></div>
+        <div><label>Subtítulo</label><input type="text" id="cpSubtitle" placeholder="Ex: Presentes especiais para ela"></div>
+      </div>
+      <div class="field row2">
+        <div><label>Texto do botão</label><input type="text" id="cpButton" placeholder="Ex: Ver ofertas"></div>
+        <div><label>Desconto em destaque (opcional)</label><input type="text" id="cpDiscount" placeholder="Ex: 20% OFF"></div>
+      </div>
+      <div class="field">
+        <label>Imagem do banner (opcional)</label>
+        <div class="img-drop" data-act="click:cpImgInput">
+          <div class="prev" id="cpImgPreview"></div>
+          <div class="txt"><b>Clique para escolher</b><br>usada no banner de topo da loja</div>
+        </div>
+        <input type="file" id="cpImgInput" accept="image/*" class="hidden-file">
+      </div>
+      <div class="field">
+        <label>Elementos decorativos (opcional — ex: corações, confetes, estrelas)</label>
+        <input type="text" id="cpDecor" placeholder="Ex: corações, laços">
+      </div>
+    </div>
+
+    <div class="tabpane" data-cpane="cores">
+      <div class="colorpicker-grid" id="campColorGrid"></div>
+      <button type="button" class="hbtn" style="color:var(--ink);border-color:var(--line);margin-top:14px;" id="restoreColorsBtn">Restaurar cores padrão</button>
+    </div>
+
+    <div class="tabpane" data-cpane="lojas">
+      <div class="field">
+        <label>Modo de ativação</label>
+        <select id="cpMode">
+          <option value="auto">Automático (por data)</option>
+          <option value="manual">Manual (sempre ativa enquanto marcada)</option>
+          <option value="off">Desativado</option>
+        </select>
+      </div>
+      <div class="field row3">
+        <div><label>Data inicial</label><input type="text" id="cpStart" placeholder="MM-DD (todo ano) ou AAAA-MM-DD"></div>
+        <div><label>Data final</label><input type="text" id="cpEnd" placeholder="MM-DD (todo ano) ou AAAA-MM-DD"></div>
+        <div><label>Prioridade (maior = vence)</label><input type="number" id="cpPriority" value="5" min="1" max="10"></div>
+      </div>
+      <div class="field hint">Use <b>MM-DD</b> (ex: 05-01) para uma data que se repete todo ano, ou <b>AAAA-MM-DD</b> para uma data única.</div>
+      <div class="field">
+        <label>Lojas participantes</label>
+        <div class="store-check-grid" id="campStoreChecks"></div>
+      </div>
+      <div class="switch-row">
+        <label>Campanha ativa (habilitada)</label>
+        <label class="switch"><input type="checkbox" id="cpActive" checked><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" data-act="fn:closeCampModal">Cancelar</button>
+      <button type="button" class="btn-save" id="campSaveBtn">Salvar campanha</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: ação em massa - categoria ============ -->
+<div class="overlay" id="bulkCatOverlay">
+  <div class="modal">
+    <h2>Alterar categoria em massa</h2>
+    <p style="font-size:.82rem;color:var(--ink-soft);" id="bulkCatText"></p>
+    <div class="field">
+      <label>Nova categoria</label>
+      <select id="bulkCatSelect"></select>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" data-act="fn:closeBulkCatModal">Cancelar</button>
+      <button type="button" class="btn-save" id="bulkCatConfirmBtn">Aplicar a todos</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: badge em massa ============ -->
+<div class="overlay" id="bulkBadgeOverlay">
+  <div class="modal">
+    <h2>Aplicar badge em massa</h2>
+    <div class="field">
+      <label>Badge</label>
+      <div class="chiprow" id="bulkBadgeChips"></div>
+      <input type="text" id="bulkBadgeCustom" placeholder="Ou escreva um badge personalizado" style="margin-top:8px;">
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" data-act="fn:closeBulkBadgeModal">Cancelar</button>
+      <button type="button" class="btn-save" id="bulkBadgeConfirmBtn">Aplicar aos selecionados</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: confirmação genérica ============ -->
+<div class="overlay confirm-modal" id="confirmOverlay">
+  <div class="modal">
+    <h2 id="confirmTitle">Confirmar</h2>
+    <p id="confirmText"></p>
+    <div class="warn-box" id="confirmWarn" style="display:none;"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" id="confirmCancelBtn">Cancelar</button>
+      <button type="button" class="btn-danger" id="confirmOkBtn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+/* ============================================================
+   COMPATIBILIDADE — injetado no topo das páginas antigas.
+   Faz duas coisas e só isso:
+
+   1. Todo fetch de escrita passa a levar o cabeçalho X-CSRF-Token.
+      Sem isso o servidor novo recusa a gravação (403). O token vem
+      do cookie 'csrf', que o servidor coloca ao entregar a página.
+
+   2. Substitui os antigos onclick="..." inline, que a nova política
+      de CSP bloqueia. Os botões agora usam data-act e este handler
+      delegado dispara a mesma função de antes.
+============================================================ */
+(function(){
+  function cookie(nome){
+    var partes = (document.cookie || "").split(";");
+    for(var i=0;i<partes.length;i++){
+      var p = partes[i], k = p.indexOf("=");
+      if(k>0 && p.slice(0,k).trim() === nome){
+        try { return decodeURIComponent(p.slice(k+1).trim()); } catch(e){ return null; }
+      }
+    }
+    return null;
+  }
+
+  var fetchOriginal = window.fetch;
+
+  /* Só embrulha se houver o que embrulhar. Navegador antigo (ou
+     ambiente de teste sem fetch) não deve derrubar a página inteira
+     por causa disto — o resto do shim continua valendo. */
+  if (typeof fetchOriginal === "function") {
+    window.fetch = function(entrada, opcoes){
+      opcoes = opcoes || {};
+      var metodo = String(opcoes.method || "GET").toUpperCase();
+      var mesmaOrigem = typeof entrada === "string" &&
+        (entrada.charAt(0) === "/" || entrada.indexOf(location.origin) === 0);
+
+      if(mesmaOrigem && metodo !== "GET" && metodo !== "HEAD"){
+        var token = cookie("csrf");
+        if(token){
+          var h = opcoes.headers || {};
+          if(typeof Headers !== "undefined" && h instanceof Headers) h.set("X-CSRF-Token", token);
+          else { h = Object.assign({}, h); h["X-CSRF-Token"] = token; }
+          opcoes.headers = h;
+        }
+        if(!opcoes.credentials) opcoes.credentials = "same-origin";
+      }
+      return fetchOriginal.call(window, entrada, opcoes);
+    };
+  }
+
+  document.addEventListener("click", function(ev){
+    var alvo = ev.target && ev.target.closest ? ev.target.closest("[data-act]") : null;
+    if(!alvo) return;
+    var acao = alvo.getAttribute("data-act") || "";
+    var i = acao.indexOf(":");
+    if(i < 0) return;
+    var tipo = acao.slice(0, i), arg = acao.slice(i + 1);
+
+    if(tipo === "click"){
+      var el = document.getElementById(arg);
+      if(el) el.click();
+    } else if(tipo === "fn"){
+      var fn = window[arg];
+      if(typeof fn === "function") fn();
+    }
+  });
+})();
+
+
+"use strict";
+
+/* ============================================================
+   ÍCONES (mesma lib do site, versão enxuta)
+============================================================ */
+var ICONS = {
+  jeans:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 2h10l1 4-1.3 15a1 1 0 0 1-1 .9h-2.4a1 1 0 0 1-1-.9L12 13l-.3 8a1 1 0 0 1-1 .9H8.3a1 1 0 0 1-1-.9L6 6z"/><path d="M6 6h12M9 2v4M15 2v4"/></svg>',
+  jacket:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3 5 5l1 4-2 1 1 10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1l1-10-2-1 1-4-3-2-3 2-3-2z"/><path d="M12 5v16"/></svg>',
+  skirt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3h6l1 4-3 1 6 12a1 1 0 0 1-.9 1.4H5.9A1 1 0 0 1 5 19.4L11 8 8 7z"/></svg>',
+  dress:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2h6l1 3-2 2 3 13a1 1 0 0 1-1 1.2H8a1 1 0 0 1-1-1.2l3-13-2-2z"/><path d="M9 5h6"/></svg>',
+  shirt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3 4 6l2 3 2-1v11a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V8l2 1 2-3-4-3-2 2h-4z"/></svg>',
+  legging:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2h8v6l1 14a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1l-1-10-1 10a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1l1-14z"/></svg>',
+  onesie:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2h8l1 6-2 1v3l2 8a1 1 0 0 1-1 1.3H8a1 1 0 0 1-1-1.3l2-8V9L7 8z"/></svg>',
+
+  /* ---- ícones de interface (navegação, botões, ações) ---- */
+  dashboard:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>',
+  box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>',
+  tag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.6 12.6 12 4H4v8l8.6 8.6a2 2 0 0 0 2.8 0l5.2-5.2a2 2 0 0 0 0-2.8z"/><circle cx="8.4" cy="8.4" r="1.15"/></svg>',
+  target:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8.3"/><circle cx="12" cy="12" r="4.8"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.5-2-3.5-2.4 1a7.7 7.7 0 0 0-1.7-1L15 3h-4l-.3 2.9a7.7 7.7 0 0 0-1.7 1l-2.4-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a7.7 7.7 0 0 0 1.7 1L9 21h4l.3-2.9a7.7 7.7 0 0 0 1.7-1l2.4 1 2-3.5z"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></svg>',
+  upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>',
+  download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M14 6l4 4"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h16"/><path d="M9 7V4h6v3M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/><path d="M10 11v6M14 11v6"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>',
+  save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v6h8V4M8 20v-6h8v6"/></svg>',
+  cancel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
+  undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 10h9a5 5 0 0 1 0 10h-2"/><path d="M8 5 4 10l4 5"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M12 3l2.7 5.9 6.3.7-4.7 4.4 1.3 6.3L12 17.4 6.4 20.3l1.3-6.3L3 9.6l6.3-.7z"/></svg>',
+  starOutline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l2.7 5.9 6.3.7-4.7 4.4 1.3 6.3L12 17.4 6.4 20.3l1.3-6.3L3 9.6l6.3-.7z"/></svg>',
+  checklist:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="5" height="5" rx="1"/><path d="M4.5 6.5l1 1 2-2"/><rect x="3" y="15" width="5" height="5" rx="1"/><path d="M4.5 17.5l1 1 2-2"/><path d="M11 6.5h10M11 17.5h10"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12.5l5 5L20 6"/></svg>',
+  zap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
+  store:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0"/><path d="M5 9v11h14V9"/><path d="M9.5 20v-6h5v6"/></svg>',
+  price:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M9.5 15.5c.5 1 1.5 1.5 2.7 1.5 1.7 0 3-1 3-2.3 0-1.4-1.3-2-3-2.4-1.7-.4-3-1-3-2.4 0-1.3 1.3-2.3 3-2.3 1.2 0 2.2.5 2.7 1.5M12 6.5v11"/></svg>',
+  stock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4"/></svg>',
+  security:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+  calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>',
+  image:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M21 16l-5.5-5.5a2 2 0 0 0-2.8 0L4 19"/></svg>',
+  palette:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3a9 9 0 1 0 0 18h1.5a2 2 0 0 0 2-2 1.6 1.6 0 0 1 1.6-1.6h1.4A2.5 2.5 0 0 0 21 15c0-6.6-4-12-9-12z"/><circle cx="7.5" cy="11" r="1.1"/><circle cx="9" cy="7" r="1.1"/><circle cx="14" cy="7" r="1.1"/><circle cx="16" cy="11" r="1.1"/></svg>',
+  success:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M8.3 12.3l2.4 2.4 5-5"/></svg>',
+  warning:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3.5 21.5 20h-19z"/><path d="M12 9.5v4.5"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="8" r=".9" fill="currentColor" stroke="none"/></svg>',
+  drag:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="8" cy="6" r="1.3"/><circle cx="16" cy="6" r="1.3"/><circle cx="8" cy="12" r="1.3"/><circle cx="16" cy="12" r="1.3"/><circle cx="8" cy="18" r="1.3"/><circle cx="16" cy="18" r="1.3"/></svg>'
+};
+function iconFor(key){ return ICONS[key] || ICONS.shirt; }
+function uiIcon(key, cls){ return '<span class="ui-icon'+(cls?" "+cls:"")+'" aria-hidden="true">'+(ICONS[key]||"")+'</span>'; }
+
+/* ============================================================
+   CONSTANTES
+============================================================ */
+var STORAGE_KEY = "lojadojeans_catalog_draft_v2";
+var BADGE_PRESETS = ["Novo","Oferta","Destaque","Mais vendido","Últimas unidades","Exclusivo","Black Friday","Lançamento"];
+var DEFAULT_CAMP_COLORS = {
+  primary:"#C9A46A", secondary:"#A9803F", accent:"#F1E4C8", bg:"#FAF8F3",
+  text:"#15131F", button:"#C9A46A", badge:"#B4432E", price:"#15131F", discount:"#2E7D4F"
+};
+var CAMPAIGN_PRESETS = [
+  {name:"Carnaval", start:"--02-01", end:"--02-17", title:"Bloco de Ofertas", subtitle:"Foliã até no preço", colors:{primary:"#8E2DE2",secondary:"#4A00E0",accent:"#FFD700",bg:"#FAF8F3",text:"#15131F",button:"#8E2DE2",badge:"#FFD700",price:"#15131F",discount:"#8E2DE2"}},
+  {name:"Dia Internacional da Mulher", start:"--03-01", end:"--03-08", title:"Dia da Mulher", subtitle:"Presentes que celebram você", colors:{primary:"#D6336C",secondary:"#A61E4D",accent:"#FFE3EC",bg:"#FAF8F3",text:"#15131F",button:"#D6336C",badge:"#D6336C",price:"#15131F",discount:"#D6336C"}},
+  {name:"Semana do Consumidor", start:"--03-10", end:"--03-15", title:"Semana do Consumidor", subtitle:"Ofertas especiais pra você", colors:{primary:"#2E5F9E",secondary:"#1C3F6E",accent:"#DCE6F5",bg:"#FAF8F3",text:"#15131F",button:"#2E5F9E",badge:"#2E5F9E",price:"#15131F",discount:"#2E5F9E"}},
+  {name:"Páscoa", start:"--03-25", end:"--04-05", title:"Páscoa", subtitle:"Doces novidades te esperam", colors:{primary:"#8BC98B",secondary:"#5C9E5C",accent:"#FFE9AC",bg:"#FAF8F3",text:"#15131F",button:"#8BC98B",badge:"#C9A46A",price:"#15131F",discount:"#5C9E5C"}},
+  {name:"Dia das Mães", start:"--05-01", end:"--05-12", title:"Dia das Mães", subtitle:"Presentes especiais para ela", colors:{primary:"#E27D9A",secondary:"#B85C78",accent:"#FBE3E9",bg:"#FAF8F3",text:"#15131F",button:"#E27D9A",badge:"#E27D9A",price:"#15131F",discount:"#B85C78"}},
+  {name:"Dia dos Namorados", start:"--06-06", end:"--06-12", title:"Dia dos Namorados", subtitle:"Combine o look com quem você ama", colors:{primary:"#C9184A",secondary:"#8A0F33",accent:"#FBE3E9",bg:"#FAF8F3",text:"#15131F",button:"#C9184A",badge:"#C9184A",price:"#15131F",discount:"#8A0F33"}},
+  {name:"Festa Junina", start:"--06-15", end:"--06-30", title:"Arraiá de Ofertas", subtitle:"Look de festa junina", colors:{primary:"#DE9F00",secondary:"#B47D00",accent:"#FFE9AC",bg:"#FAF8F3",text:"#15131F",button:"#DE9F00",badge:"#B4432E",price:"#15131F",discount:"#DE9F00"}},
+  {name:"Dia dos Pais", start:"--08-01", end:"--08-10", title:"Dia dos Pais", subtitle:"Estilo para o herói da casa", colors:{primary:"#14204A",secondary:"#0B1330",accent:"#DCE6F5",bg:"#FAF8F3",text:"#15131F",button:"#14204A",badge:"#14204A",price:"#15131F",discount:"#14204A"}},
+  {name:"Independência do Brasil", start:"--09-01", end:"--09-07", title:"Semana da Pátria", subtitle:"Ofertas de norte a sul", colors:{primary:"#2E7D4F",secondary:"#1E5535",accent:"#FFE9AC",bg:"#FAF8F3",text:"#15131F",button:"#2E7D4F",badge:"#F5B915",price:"#15131F",discount:"#2E7D4F"}},
+  {name:"Dia das Crianças", start:"--10-05", end:"--10-12", title:"Dia das Crianças", subtitle:"Diversão em cada look", colors:{primary:"#F5B915",secondary:"#DE9F00",accent:"#FFE9AC",bg:"#FAF8F3",text:"#15131F",button:"#F5B915",badge:"#B4432E",price:"#15131F",discount:"#F5B915"}},
+  {name:"Nossa Senhora Aparecida", start:"--10-08", end:"--10-12", title:"12 de Outubro", subtitle:"Feriado com boas ofertas", colors:{primary:"#5C4B9E",secondary:"#3E3370",accent:"#E5DEF5",bg:"#FAF8F3",text:"#15131F",button:"#5C4B9E",badge:"#5C4B9E",price:"#15131F",discount:"#5C4B9E"}},
+  {name:"Dia do Professor", start:"--10-13", end:"--10-15", title:"Dia do Professor", subtitle:"Um presente de nota 10", colors:{primary:"#2E5F9E",secondary:"#1C3F6E",accent:"#DCE6F5",bg:"#FAF8F3",text:"#15131F",button:"#2E5F9E",badge:"#2E5F9E",price:"#15131F",discount:"#2E5F9E"}},
+  {name:"Dia da Consciência Negra", start:"--11-18", end:"--11-20", title:"Consciência Negra", subtitle:"Ancestralidade e estilo", colors:{primary:"#B4432E",secondary:"#7A2C1E",accent:"#F1E4C8",bg:"#FAF8F3",text:"#15131F",button:"#B4432E",badge:"#B4432E",price:"#15131F",discount:"#B4432E"}},
+  {name:"Black Friday Brasil", start:"--11-20", end:"--11-29", title:"Black Friday", subtitle:"Os maiores descontos do ano", colors:{primary:"#0A0A0A",secondary:"#1A1A1A",accent:"#F5B915",bg:"#0A0A0A",text:"#FFFFFF",button:"#F5B915",badge:"#F5B915",price:"#FFFFFF",discount:"#F5B915"}},
+  {name:"Proclamação da República", start:"--11-13", end:"--11-15", title:"Feriado da República", subtitle:"Ofertas de feriado", colors:{primary:"#2E7D4F",secondary:"#1E5535",accent:"#FFE9AC",bg:"#FAF8F3",text:"#15131F",button:"#2E7D4F",badge:"#2E7D4F",price:"#15131F",discount:"#2E7D4F"}},
+  {name:"Natal", start:"--12-01", end:"--12-25", title:"Natal", subtitle:"O presente perfeito está aqui", colors:{primary:"#B4432E",secondary:"#7A2C1E",accent:"#2E7D4F",bg:"#FAF8F3",text:"#15131F",button:"#B4432E",badge:"#2E7D4F",price:"#15131F",discount:"#B4432E"}},
+  {name:"Réveillon", start:"--12-26", end:"--01-01", title:"Réveillon", subtitle:"Comece o ano com um look novo", colors:{primary:"#C9A46A",secondary:"#A9803F",accent:"#15131F",bg:"#15131F",text:"#FFFFFF",button:"#C9A46A",badge:"#C9A46A",price:"#FFFFFF",discount:"#C9A46A"}},
+  {name:"Volta às Aulas", start:"--01-15", end:"--02-05", title:"Volta às Aulas", subtitle:"Estilo para o novo ano letivo", colors:{primary:"#2E5F9E",secondary:"#1C3F6E",accent:"#FFE9AC",bg:"#FAF8F3",text:"#15131F",button:"#2E5F9E",badge:"#2E5F9E",price:"#15131F",discount:"#2E5F9E"}},
+  {name:"Dia do Cliente", start:"--09-14", end:"--09-16", title:"Dia do Cliente", subtitle:"Um agrado especial pra você", colors:{primary:"#C9A46A",secondary:"#A9803F",accent:"#F1E4C8",bg:"#FAF8F3",text:"#15131F",button:"#C9A46A",badge:"#C9A46A",price:"#15131F",discount:"#C9A46A"}},
+  {name:"Aniversário da Loja", start:"--01-01", end:"--01-07", title:"Aniversário da Loja", subtitle:"Comemore com a gente", colors:{primary:"#C9A46A",secondary:"#A9803F",accent:"#F1E4C8",bg:"#FAF8F3",text:"#15131F",button:"#C9A46A",badge:"#C9A46A",price:"#15131F",discount:"#C9A46A"}}
+];
+
+/* ============================================================
+   ESTADO
+============================================================ */
+var CATALOG = null;          // array de lojas (compatível com o site)
+var CAMPAIGNS = [];           // registro global de campanhas (em memória)
+var activeStoreId = null;
+var activeCat = "Todos";
+var activePage = "dashboard";
+var editingProductId = null;
+var pendingImg = null;
+var productColors = [];       // cores do produto sendo editado
+var editingCatOriginalName = null;
+var pendingCatImg = null;
+var editingCampId = null;
+var pendingCampImg = null;
+var bulkMode = false;
+var bulkSelected = {};        // id -> true
+var lastSnapshot = null;      // para desfazer última ação
+var lastSnapshotLabel = "";
+var pendingConfirm = null;
+
+var els = {};
+
+function $(id){ return document.getElementById(id); }
+
+/* ============================================================
+   INIT
+============================================================ */
+function init(){
+  cacheEls();
+  bindStaticEvents();
+  var draft = localStorage.getItem(STORAGE_KEY);
+  if(draft){
+    try{
+      CATALOG = JSON.parse(draft);
+      afterLoad("Rascunho salvo neste navegador foi restaurado.");
+      return;
+    }catch(e){ /* rascunho corrompido, ignora */ }
+  }
+  /* No servidor do Render o catálogo vem da API protegida por login. */
+  fetch("/api/catalog", { cache:"no-store", credentials:"same-origin" })
+    .then(function(r){
+      if(r.status === 401){ location.href = "/login?proximo=/admin"; throw new Error("401"); }
+      if(!r.ok) throw new Error();
+      return r.json();
+    })
+    .then(function(data){ CATALOG = data; afterLoad("Catálogo carregado do servidor."); })
+    .catch(function(e){
+      if(String(e.message) === "401") return;
+      /* fora do servidor (abrindo o arquivo direto), tenta o catalog.json ao lado */
+      fetch("catalog.json", { cache:"no-store" })
+        .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
+        .then(function(data){ CATALOG = data; afterLoad("catalog.json local carregado."); })
+        .catch(function(){
+          els.grid.innerHTML = '<div class="empty">Não consegui carregar o catálogo.<br>Use "Carregar catalog.json" para escolher o arquivo manualmente.</div>';
+        });
+    });
+}
+
+function cacheEls(){
+  els.storeTabs = $("storeTabs");
+  els.catToolbar = $("catToolbar");
+  els.grid = $("productGrid");
+  els.overlay = $("overlay");
+  els.form = $("productForm");
+  els.saveStatus = $("saveStatus");
+  els.toast = $("toast");
+  els.toastMsg = $("toastMsg");
+}
+
+function afterLoad(msg){
+  normalizeCatalog();
+  buildCampaignsRegistry();
+  activeStoreId = CATALOG[0] ? CATALOG[0].id : null;
+  renderStoreTabs();
+  renderAll();
+  renderDashboard();
+  renderCategoriasPage();
+  renderCampanhasPage();
+  renderConfigPage();
+  showToast(msg);
+}
+
+/* Garante que lojas antigas tenham todos os campos novos, sem quebrar nada. */
+function normalizeCatalog(){
+  CATALOG.forEach(function(s){
+    if(!s.categories) s.categories = [];
+    if(!s.categoryMeta) s.categoryMeta = {};
+    s.categories.forEach(function(c){
+      if(!s.categoryMeta[c]) s.categoryMeta[c] = { desc:"", icon:"", img:null, active:true };
+    });
+    if(!s.campaigns) s.campaigns = [];
+    if(!s.products) s.products = [];
+    s.products.forEach(normalizeProduct);
+  });
+}
+function normalizeProduct(p){
+  if(p.ref === undefined) p.ref = "";
+  if(p.model === undefined) p.model = "";
+  if(p.groupId === undefined) p.groupId = "";
+  if(p.featured === undefined) p.featured = false;
+  if(p.badge === undefined) p.badge = "";
+  if(p.order === undefined) p.order = 0;
+  if(p.colors === undefined) p.colors = [];
+  if(p.attrs === undefined) p.attrs = { lavagem:"", corte:"", material:"", modelagem:"", estampa:"", colecao:"" };
+  if(p.createdAt === undefined) p.createdAt = Date.now();
+  /* --- novo: status comercial do produto (o site antigo ignora este campo) --- */
+  if(p.active === undefined) p.active = true;
+  /* --- novo: migração das cores para o formato completo de variação --- */
+  p.colors = (p.colors || []).map(normalizeColor);
+}
+
+/* Completa uma cor antiga com os campos novos SEM apagar nada do que já existia.
+   Cores criadas na versão anterior tinham apenas {name, hex, img, sizeStock}. */
+function normalizeColor(c, i){
+  if(!c || typeof c !== "object") c = {};
+  if(!c.id) c.id = uid("cor");
+  if(c.name === undefined) c.name = "";
+  if(c.hex === undefined) c.hex = "#C9A46A";
+  if(c.img === undefined) c.img = null;
+  if(c.sku === undefined) c.sku = "";
+  if(c.quality === undefined) c.quality = "";
+  if(c.price === undefined) c.price = 0;      // 0 = herda o preço do produto
+  if(c.active === undefined) c.active = true;
+  if(c.order === undefined) c.order = (typeof i === "number" ? i : 0);
+  if(!Array.isArray(c.sizeStock)) c.sizeStock = [];
+  c.sizeStock = c.sizeStock.filter(function(ss){ return ss && ss.size; }).map(function(ss){
+    return { size: String(ss.size).trim(), stock: Math.max(0, parseInt(ss.stock,10) || 0) };
+  });
+  return c;
+}
+
+document.addEventListener("DOMContentLoaded", function(){ /* no-op: init() called at bottom of script */ });
+
+/* ============================================================
+   CAMPANHAS: registro global <-> por loja
+   As campanhas são editadas uma única vez e distribuídas para as
+   lojas participantes no momento de salvar/baixar, mantendo o
+   catalog.json 100% compatível com o site (apenas um campo extra
+   "campaigns" dentro de cada loja, que o site atual ignora).
+============================================================ */
+function buildCampaignsRegistry(){
+  var map = {};
+  CATALOG.forEach(function(s){
+    (s.campaigns||[]).forEach(function(c){
+      if(!map[c.id]){
+        map[c.id] = JSON.parse(JSON.stringify(c));
+        map[c.id].stores = [s.id];
+      } else if(map[c.id].stores.indexOf(s.id) === -1){
+        map[c.id].stores.push(s.id);
+      }
+    });
+  });
+  CAMPAIGNS = Object.keys(map).map(function(k){ return map[k]; });
+}
+function syncCampaignsToStores(){
+  CATALOG.forEach(function(s){
+    s.campaigns = CAMPAIGNS.filter(function(c){
+      return c.stores && c.stores.indexOf(s.id) !== -1;
+    }).map(function(c){
+      var copy = JSON.parse(JSON.stringify(c));
+      delete copy.stores;
+      return copy;
+    });
+  });
+}
+
+/* ============================================================
+   HELPERS GERAIS
+============================================================ */
+function storeById(id){ for(var i=0;i<CATALOG.length;i++){ if(CATALOG[i].id===id) return CATALOG[i]; } return null; }
+function campById(id){ for(var i=0;i<CAMPAIGNS.length;i++){ if(CAMPAIGNS[i].id===id) return CAMPAIGNS[i]; } return null; }
+function money(v){ return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function escapeHtml(s){
+  return String(s||"").replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function uid(prefix){ return (prefix||"id")+"-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7); }
+
+function showToast(msg, actionLabel, actionFn){
+  els.toastMsg.textContent = msg;
+  var old = els.toast.querySelector("button");
+  if(old) old.remove();
+  if(actionLabel && actionFn){
+    var b = document.createElement("button");
+    b.type = "button"; b.textContent = actionLabel;
+    b.addEventListener("click", function(){ actionFn(); els.toast.classList.remove("show"); });
+    els.toast.appendChild(b);
+  }
+  els.toast.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(function(){ els.toast.classList.remove("show"); }, 5000);
+}
+
+/* ---- desfazer última alteração (1 nível) ---- */
+function pushUndo(label){
+  lastSnapshot = JSON.stringify(CATALOG);
+  lastSnapshotLabel = label || "última ação";
+}
+function undoLast(){
+  if(!lastSnapshot){ showToast("Nada para desfazer."); return; }
+  CATALOG = JSON.parse(lastSnapshot);
+  normalizeCatalog();
+  buildCampaignsRegistry();
+  lastSnapshot = null;
+  if(!storeById(activeStoreId)) activeStoreId = CATALOG[0] ? CATALOG[0].id : null;
+  saveDraft();
+  renderStoreTabs();
+  renderAll();
+  renderDashboard();
+  renderCategoriasPage();
+  renderCampanhasPage();
+  showToast("Alteração desfeita: " + lastSnapshotLabel);
+}
+
+/* ---- confirmação genérica (substitui confirm() nativo p/ ações destrutivas) ---- */
+function askConfirm(opts){
+  $("confirmTitle").textContent = opts.title || "Confirmar";
+  $("confirmText").textContent = opts.text || "";
+  var warn = $("confirmWarn");
+  if(opts.warn){ warn.style.display = "block"; warn.textContent = opts.warn; } else { warn.style.display = "none"; }
+  $("confirmOkBtn").textContent = opts.okLabel || "Confirmar";
+  pendingConfirm = opts.onConfirm;
+  $("confirmOverlay").classList.add("open");
+}
+function closeConfirmModal(){ $("confirmOverlay").classList.remove("open"); pendingConfirm = null; }
+
+/* ============================================================
+   CARREGAR / SALVAR / EXPORTAR
+============================================================ */
+$("fileInput") && $("fileInput").addEventListener("change", function(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    try{
+      var data = JSON.parse(reader.result);
+      CATALOG = Array.isArray(data) ? data : (data.stores || []);
+      afterLoad("Arquivo carregado: " + file.name);
+      saveDraft();
+    }catch(err){
+      alert("Esse arquivo não parece um catalog.json válido.");
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+function saveDraft(){
+  try{
+    syncCampaignsToStores();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(CATALOG));
+    els.saveStatus.textContent = "Rascunho salvo às " + new Date().toLocaleTimeString("pt-BR");
+  }catch(e){
+    els.saveStatus.textContent = "Não foi possível salvar o rascunho (armazenamento cheio).";
+  }
+}
+
+/* Salva o catálogo no servidor do Render. O download continua sendo a
+   fonte de verdade para o GitHub Pages — no plano free o disco do Render
+   é apagado a cada deploy. */
+$("publicarBtn") && $("publicarBtn").addEventListener("click", function(){
+  var btn = this;
+  syncCampaignsToStores();
+  btn.disabled = true;
+  var textoOriginal = btn.textContent;
+  btn.textContent = "Salvando...";
+  fetch("/api/catalog", {
+    method:"PUT",
+    headers:{"Content-Type":"application/json"},
+    credentials:"same-origin",
+    body: JSON.stringify(CATALOG)
+  })
+  .then(function(r){
+    if(r.status === 401){ location.href = "/login?proximo=/admin"; throw new Error("401"); }
+    return r.json().then(function(d){ if(!r.ok) throw new Error(d.erro||"falhou"); return d; });
+  })
+  .then(function(){
+    showToast("Catálogo salvo no servidor. Baixe o arquivo para publicar no site.");
+  })
+  .catch(function(e){
+    if(String(e.message) === "401") return;
+    showToast("Não consegui salvar: " + e.message + ". Baixe o arquivo para não perder o trabalho.");
+  })
+  .finally(function(){ btn.disabled = false; btn.textContent = textoOriginal; });
+});
+
+$("sairBtn") && $("sairBtn").addEventListener("click", function(){
+  fetch("/api/logout", { method:"POST", credentials:"same-origin" })
+    .then(function(){ location.href = "/login"; })
+    .catch(function(){ location.href = "/login"; });
+});
+
+$("downloadBtn") && $("downloadBtn").addEventListener("click", function(){
+  if(!CATALOG){ alert("Nada carregado ainda."); return; }
+  syncCampaignsToStores();
+  var blob = new Blob([JSON.stringify(CATALOG, null, 2)], {type:"application/json"});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = "catalog.json";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("catalog.json baixado. Envie esse arquivo para a pasta do site.");
+});
+
+/* ============================================================
+   NAVEGAÇÃO ENTRE PÁGINAS
+============================================================ */
+function bindStaticEvents(){
+  document.querySelectorAll(".mnav-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){ switchPage(btn.getAttribute("data-page")); });
+  });
+  document.querySelectorAll("#prodTabs button").forEach(function(btn){
+    btn.addEventListener("click", function(){ switchProdTab(btn.getAttribute("data-tab")); });
+  });
+  document.querySelectorAll("#campTabs button").forEach(function(btn){
+    btn.addEventListener("click", function(){ switchCampTab(btn.getAttribute("data-ctab")); });
+  });
+  $("confirmCancelBtn").addEventListener("click", closeConfirmModal);
+  $("confirmOkBtn").addEventListener("click", function(){
+    var fn = pendingConfirm;
+    closeConfirmModal();
+    if(fn) fn();
+  });
+  $("removeImgBtn").addEventListener("click", function(){ pendingImg = null; refreshImgPreview(); });
+  $("imgFileInput").addEventListener("change", handleProductImgUpload);
+  els.form.addEventListener("submit", onProductFormSubmit);
+
+  $("newCatBtn").addEventListener("click", function(){ openCatModal(null); });
+  $("catSaveBtn").addEventListener("click", onCatSave);
+  $("catImgInput").addEventListener("change", handleCatImgUpload);
+  $("catDelConfirmBtn").addEventListener("click", onCatDeleteConfirm);
+  $("catPageStoreSel").addEventListener("change", function(){ renderCategoriasPage(); });
+
+  $("newCampBtn").addEventListener("click", function(){ openCampModal(null); });
+  $("campSaveBtn").addEventListener("click", onCampSave);
+  $("cpImgInput").addEventListener("change", handleCampImgUpload);
+  $("restoreColorsBtn").addEventListener("click", function(){ renderCampColorPickers(DEFAULT_CAMP_COLORS); });
+
+  $("bulkToggleBtn").addEventListener("click", toggleBulkMode);
+  $("bulkAllBtn").addEventListener("click", bulkSelectAll);
+  $("bulkNoneBtn").addEventListener("click", bulkSelectNone);
+  $("bulkDelBtn").addEventListener("click", bulkDeleteSelected);
+  $("bulkFeatBtn").addEventListener("click", bulkMarkFeatured);
+  $("bulkCatBtn").addEventListener("click", openBulkCatModal);
+  $("bulkCatConfirmBtn").addEventListener("click", onBulkCatConfirm);
+  $("bulkBadgeBtn").addEventListener("click", openBulkBadgeModal);
+  $("bulkBadgeConfirmBtn").addEventListener("click", onBulkBadgeConfirm);
+  $("bulkOnBtn").addEventListener("click", function(){ bulkSetActive(true); });
+  $("bulkOffBtn").addEventListener("click", function(){ bulkSetActive(false); });
+  $("addColorBtn").addEventListener("click", function(){ addColorRow(null); });
+  $("colorImgInput").addEventListener("change", handleColorImgUpload);
+  $("sortSelect").addEventListener("change", renderAll);
+  $("undoBtn").addEventListener("click", undoLast);
+
+  /* aba WhatsApp & Divulgação */
+  $("wppColor").addEventListener("change", function(){ fillWppSizes(); renderWppMessage(); });
+  $("wppSize").addEventListener("change", renderWppMessage);
+  $("wppOrigin").addEventListener("change", renderWppMessage);
+  $("wppOpenBtn").addEventListener("click", function(){
+    var d = buildWppData();
+    if(!d) return;
+    window.open("https://wa.me/"+d.phone+"?text="+encodeURIComponent(d.message), "_blank", "noopener");
+  });
+  $("wppCopyMsgBtn").addEventListener("click", function(){
+    var d = buildWppData(); if(d) copyText(d.message, "Mensagem copiada.");
+  });
+  $("wppCopyLinkBtn").addEventListener("click", function(){
+    var d = buildWppData(); if(d) copyText(d.trackLink, "Link rastreável copiado.");
+  });
+  $("wppCopyLegendBtn").addEventListener("click", function(){
+    var d = buildWppData(); if(d) copyText(d.legend, "Legenda copiada. É só colar no Instagram.");
+  });
+
+  /* presets de qualidade no datalist */
+  $("qualityPresets").innerHTML = QUALITY_PRESETS.map(function(q){
+    return '<option value="'+escapeAttr(q)+'">';
+  }).join("");
+
+  var gs = $("globalSearch");
+  gs.addEventListener("input", onGlobalSearch);
+  gs.addEventListener("focus", onGlobalSearch);
+  document.addEventListener("click", function(e){
+    if(!e.target.closest(".gsearch")) $("gsearchResults").classList.remove("open");
+  });
+}
+
+function switchPage(page){
+  activePage = page;
+  document.querySelectorAll(".mnav-btn").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-page")===page); });
+  document.querySelectorAll(".page").forEach(function(p){ p.classList.toggle("active", p.getAttribute("data-page")===page); });
+  if(page==="dashboard") renderDashboard();
+  if(page==="categorias") renderCategoriasPage();
+  if(page==="campanhas") renderCampanhasPage();
+  if(page==="config") renderConfigPage();
+}
+function switchProdTab(tab){
+  document.querySelectorAll("#prodTabs button").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-tab")===tab); });
+  document.querySelectorAll("#productForm .tabpane").forEach(function(p){ p.classList.toggle("active", p.getAttribute("data-pane")===tab); });
+  if(tab === "cores") updateColorSummary();
+  if(tab === "whats") refreshWppPanel();
+}
+function switchCampTab(tab){
+  document.querySelectorAll("#campTabs button").forEach(function(b){ b.classList.toggle("active", b.getAttribute("data-ctab")===tab); });
+  document.querySelectorAll("#campOverlay .tabpane").forEach(function(p){ p.classList.toggle("active", p.getAttribute("data-cpane")===tab); });
+}
+
+/* ============================================================
+   PRODUTO: cálculos derivados (estoque/tamanhos a partir de cores)
+============================================================ */
+/* Estoque publicado = soma das cores ATIVAS. Cor inativa não vende, então não conta.
+   Produto sem cores continua usando o campo "stock" de sempre (retrocompatível). */
+function computeProductStock(p){
+  if(p.colors && p.colors.length){
+    var total = 0;
+    p.colors.forEach(function(c){
+      if(c.active === false) return;
+      (c.sizeStock||[]).forEach(function(ss){ total += Number(ss.stock)||0; });
+    });
+    return total;
+  }
+  return Number(p.stock)||0;
+}
+/* Tamanhos PUBLICADOS: só os que têm peça de verdade em alguma cor ativa.
+   É isso que vai para p.sizes, então o site nunca anuncia um tamanho que
+   não pode vender — mesmo o site antigo, que não conhece a grade por cor. */
+function computeProductSizes(p){
+  if(p.colors && p.colors.length){
+    var set = {}, out = [];
+    p.colors.forEach(function(c){
+      if(c.active === false) return;
+      (c.sizeStock||[]).forEach(function(ss){
+        if(ss.size && (Number(ss.stock)||0) > 0 && !set[ss.size]){ set[ss.size] = true; out.push(ss.size); }
+      });
+    });
+    return out.sort(sizeSorter);
+  }
+  return p.sizes || [];
+}
+/* Grade completa (inclusive tamanhos zerados) — usada só na conferência do admin,
+   para o funcionário enxergar o que cadastrou enquanto ainda está digitando. */
+function computeGridSizes(p){
+  var set = {}, out = [];
+  (p.colors||[]).forEach(function(c){
+    if(c.active === false) return;
+    (c.sizeStock||[]).forEach(function(ss){
+      if(ss.size && !set[ss.size]){ set[ss.size] = true; out.push(ss.size); }
+    });
+  });
+  return out.sort(sizeSorter);
+}
+/* Ordena 36,38,40 numericamente e PP,P,M,G,GG,XGG pela régua de vestuário. */
+var SIZE_ORDER = ["PP","P","M","G","GG","XG","XGG","XXG","U","ÚNICO","UNICO"];
+function sizeSorter(a,b){
+  var na = parseFloat(a), nb = parseFloat(b);
+  var aNum = !isNaN(na) && /^[\d.,]+$/.test(String(a).trim());
+  var bNum = !isNaN(nb) && /^[\d.,]+$/.test(String(b).trim());
+  if(aNum && bNum) return na - nb;
+  if(aNum) return -1;
+  if(bNum) return 1;
+  var ia = SIZE_ORDER.indexOf(String(a).toUpperCase());
+  var ib = SIZE_ORDER.indexOf(String(b).toUpperCase());
+  if(ia === -1 && ib === -1) return String(a).localeCompare(String(b));
+  if(ia === -1) return 1;
+  if(ib === -1) return -1;
+  return ia - ib;
+}
+function computeDiscountPct(p){
+  var old = Number(p.old)||0, now = Number(p.now)||0;
+  if(!old || old<=now) return 0;
+  return Math.round((1 - now/old) * 100);
+}
+
+/* ---- helpers de cor / variação ---- */
+
+/* Cores ativas, na ordem de exibição definida pelo administrador. */
+function activeColors(p){
+  return (p.colors||[]).filter(function(c){ return c.active !== false; })
+    .slice().sort(function(a,b){ return (a.order||0) - (b.order||0); });
+}
+/* Estoque somado de uma única cor. */
+function colorStock(c){
+  var t = 0;
+  (c.sizeStock||[]).forEach(function(ss){ t += Number(ss.stock)||0; });
+  return t;
+}
+/* Preço final da cor: usa o preço próprio da variação quando existir. */
+function colorPrice(p, c){
+  var v = Number(c && c.price) || 0;
+  return v > 0 ? v : (Number(p.now)||0);
+}
+/* Faixa de preço do produto quando as variações têm preços diferentes. */
+function priceRange(p){
+  var cs = activeColors(p);
+  if(!cs.length) return { min:Number(p.now)||0, max:Number(p.now)||0, varies:false };
+  var min = Infinity, max = -Infinity;
+  cs.forEach(function(c){ var v = colorPrice(p,c); if(v<min) min=v; if(v>max) max=v; });
+  if(min === Infinity) return { min:Number(p.now)||0, max:Number(p.now)||0, varies:false };
+  return { min:min, max:max, varies:(min !== max) };
+}
+/* Tamanhos disponíveis de uma cor (estoque > 0). */
+function colorAvailableSizes(c){
+  return (c.sizeStock||[]).filter(function(ss){ return (Number(ss.stock)||0) > 0; })
+    .map(function(ss){ return ss.size; });
+}
+/* SKU legível: usa o SKU da variação; se estiver vazio, monta um a partir da ref. */
+function skuFor(p, c, size){
+  if(c && c.sku) return c.sku + (size ? "-" + size : "");
+  var base = (p.ref || p.id || "SKU").toUpperCase().replace(/\s+/g,"-");
+  var cn = c && c.name ? "-" + slugUp(c.name) : "";
+  return base + cn + (size ? "-" + size : "");
+}
+function slugUp(s){
+  return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .toUpperCase().replace(/[^A-Z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+
+/* ---- status comercial automático (seção 10 do briefing) ---- */
+var LOW_STOCK_LIMIT = 5;
+var LAST_UNITS_LIMIT = 2;
+var NEW_PRODUCT_DAYS = 14;
+
+function productStatuses(p){
+  var out = [];
+  var stock = computeProductStock(p);
+  if(p.active === false) out.push({ k:"inactive", t:"Inativo" });
+  if(stock <= 0)                 out.push({ k:"oos",  t:"Sem estoque" });
+  else if(stock <= LAST_UNITS_LIMIT) out.push({ k:"last", t:"Últimas unidades" });
+  else if(stock <= LOW_STOCK_LIMIT)  out.push({ k:"low",  t:"Estoque baixo" });
+  if(p.createdAt && (Date.now() - p.createdAt) < NEW_PRODUCT_DAYS*86400000) out.push({ k:"new", t:"Novo" });
+  if(computeDiscountPct(p) >= 20) out.push({ k:"promo", t:computeDiscountPct(p)+"% OFF" });
+  return out;
+}
+function statusPills(p){
+  var st = productStatuses(p);
+  if(!st.length) return "";
+  return '<div class="statusrow">' + st.map(function(s){
+    return '<span class="spill '+s.k+'">'+escapeHtml(s.t)+'</span>';
+  }).join("") + '</div>';
+}
+
+/* ============================================================
+   DASHBOARD
+============================================================ */
+function todayInCampaignRange(camp){
+  if(!camp.start || !camp.end) return false;
+  var now = new Date();
+  var y = now.getFullYear();
+  function toDate(str, yr){
+    // aceita "--MM-DD" (recorrente) ou "YYYY-MM-DD"
+    if(str.indexOf("--")===0){ var mmdd = str.slice(2); return new Date(yr+"-"+mmdd); }
+    return new Date(str);
+  }
+  var start = toDate(camp.start, y);
+  var end = toDate(camp.end, y);
+  if(end < start){ // atravessa o ano (ex: Réveillon)
+    return now >= start || now <= end;
+  }
+  return now >= start && now <= end;
+}
+function isCampaignCurrentlyActive(camp){
+  if(!camp.active) return false;
+  if(camp.mode === "off") return false;
+  if(camp.mode === "manual") return true;
+  return todayInCampaignRange(camp);
+}
+function getActiveCampaignForStore(storeId){
+  var candidates = CAMPAIGNS.filter(function(c){
+    return c.stores && c.stores.indexOf(storeId) !== -1 && isCampaignCurrentlyActive(c);
+  });
+  if(!candidates.length) return null;
+  candidates.sort(function(a,b){ return (b.priority||0) - (a.priority||0); });
+  return candidates[0];
+}
+
+function renderDashboard(){
+  var totalStores = CATALOG.length;
+  var totalProducts = 0, outOfStock = 0, lowStock = 0, totalCats = 0, featured = 0;
+  var lowList = [];
+  CATALOG.forEach(function(s){
+    totalProducts += s.products.length;
+    totalCats += (s.categories||[]).length;
+    s.products.forEach(function(p){
+      var st = computeProductStock(p);
+      if(st <= 0){ outOfStock++; lowList.push({s:s,p:p,st:st}); }
+      else if(st <= 5){ lowStock++; lowList.push({s:s,p:p,st:st}); }
+      if(p.featured) featured++;
+    });
+  });
+  var activeCamps = CAMPAIGNS.filter(isCampaignCurrentlyActive).length;
+
+  $("statGrid").innerHTML =
+    statCard(totalStores, "Lojas", "") +
+    statCard(totalProducts, "Produtos", "") +
+    statCard(outOfStock, "Sem estoque", "warn") +
+    statCard(lowStock, "Estoque baixo (≤5)", "warn") +
+    statCard(totalCats, "Categorias", "info") +
+    statCard(activeCamps, "Campanhas ativas agora", "ok") +
+    statCard(featured, "Produtos em destaque", "info");
+
+  var lowHtml = lowList.slice(0,8).map(function(x){
+    return '<div class="mini-row"><span>'+escapeHtml(x.p.name)+' <span style="color:var(--ink-soft)">— '+escapeHtml(x.s.name)+'</span></span>'+
+      '<span class="tag'+(x.st<=0?" off":"")+'">'+(x.st<=0?"Esgotado":x.st+" un.")+'</span></div>';
+  }).join("") || '<div class="mini-row"><span><span class="ui-icon ui-icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M8.3 12.3l2.4 2.4 5-5"/></svg></span> Nenhum produto com estoque baixo.</span></div>';
+  $("dashLowStock").innerHTML = lowHtml;
+
+  var campHtml = CAMPAIGNS.length ? CAMPAIGNS.map(function(c){
+    var on = isCampaignCurrentlyActive(c);
+    return '<div class="mini-row"><span>'+escapeHtml(c.name)+'</span><span class="tag '+(on?"on":"off")+'">'+(on?"Ativa":"Inativa")+'</span></div>';
+  }).join("") : '<div class="mini-row"><span>Nenhuma campanha criada ainda.</span></div>';
+  $("dashCampaigns").innerHTML = campHtml;
+
+  $("dashStores").innerHTML = CATALOG.map(function(s){
+    return '<div class="mini-row"><span>'+escapeHtml(s.name)+'</span><span class="tag">'+s.products.length+' produtos</span></div>';
+  }).join("");
+
+  var featList = [];
+  CATALOG.forEach(function(s){ s.products.forEach(function(p){ if(p.featured) featList.push({s:s,p:p}); }); });
+  $("dashFeatured").innerHTML = featList.length ? featList.slice(0,8).map(function(x){
+    return '<div class="mini-row"><span><span class="ui-icon ui-icon--sm" aria-hidden="true">'+ICONS.star+'</span> '+escapeHtml(x.p.name)+'</span><span class="tag">'+escapeHtml(x.s.name)+'</span></div>';
+  }).join("") : '<div class="mini-row"><span>Nenhum produto marcado como destaque ainda.</span></div>';
+}
+function statCard(num, lbl, cls){
+  return '<div class="stat-card '+(cls||"")+'"><div class="num">'+num+'</div><div class="lbl">'+lbl+'</div></div>';
+}
+
+/* ============================================================
+   RENDER: abas de loja
+============================================================ */
+function renderStoreTabs(){
+  els.storeTabs.innerHTML = CATALOG.map(function(s){
+    return '<button type="button" class="store-tab'+(s.id===activeStoreId?" active":"")+'" data-id="'+s.id+'">'+
+      '<span class="n">'+ (s.num||"") +'</span>'+ escapeHtml(s.name) +
+    '</button>';
+  }).join("");
+  els.storeTabs.querySelectorAll(".store-tab").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      activeStoreId = btn.getAttribute("data-id");
+      activeCat = "Todos";
+      bulkSelected = {};
+      renderStoreTabs();
+      renderAll();
+    });
+  });
+}
+
+/* ============================================================
+   RENDER: chips de categoria + botão de nova categoria
+============================================================ */
+function renderCatToolbar(store){
+  var cats = ["Todos"].concat(store.categories || []);
+  var html = cats.map(function(c){
+    return '<button type="button" class="cat-chip'+(activeCat===c?" active":"")+'" data-cat="'+escapeHtml(c)+'">'+escapeHtml(c)+'</button>';
+  }).join("");
+  html += '<button type="button" class="add-cat" id="addCatBtnInline">+ categoria</button>';
+  els.catToolbar.innerHTML = html;
+  els.catToolbar.querySelectorAll(".cat-chip").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      activeCat = btn.getAttribute("data-cat");
+      renderAll();
+    });
+  });
+  $("addCatBtnInline").addEventListener("click", function(){ openCatModal(null); });
+}
+
+/* ============================================================
+   RENDER: grade de produtos
+============================================================ */
+function sortProducts(list){
+  var mode = $("sortSelect") ? $("sortSelect").value : "manual";
+  var arr = list.slice();
+  if(mode==="recent") arr.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
+  else if(mode==="priceAsc") arr.sort(function(a,b){ return (a.now||0)-(b.now||0); });
+  else if(mode==="priceDesc") arr.sort(function(a,b){ return (b.now||0)-(a.now||0); });
+  else if(mode==="discount") arr.sort(function(a,b){ return computeDiscountPct(b)-computeDiscountPct(a); });
+  else if(mode==="featured") arr.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0); });
+  else arr.sort(function(a,b){ return (a.order||0)-(b.order||0); });
+  return arr;
+}
+
+function renderGrid(store){
+  var list = (store.products || []).filter(function(p){
+    return activeCat === "Todos" || p.cat === activeCat;
+  });
+  list = sortProducts(list);
+  $("gridCount").textContent = list.length + " produto(s)";
+
+  var html = '<button type="button" class="add-card" id="addProductBtn">'+
+      '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>'+
+      'Novo produto'+
+    '</button>';
+
+  list.forEach(function(p){
+    var stock = computeProductStock(p);
+    var soldOut = stock <= 0;
+    var media = p.img
+      ? '<img src="'+p.img+'" alt="'+escapeHtml(p.name)+'">'
+      : iconFor(p.icon);
+    var pct = computeDiscountPct(p);
+    /* swatches: cor inativa ou zerada aparece apagada, com o motivo no tooltip */
+    var swatches = (p.colors||[]).slice().sort(function(a,b){ return (a.order||0)-(b.order||0); })
+      .slice(0,7).map(function(c){
+        var st = colorStock(c);
+        var dim = (c.active === false) || st <= 0;
+        var why = c.active === false ? " · inativa" : (st <= 0 ? " · sem estoque" : " · "+st+" peça(s)");
+        return '<i style="background:'+escapeAttr(c.hex||"#ccc")+(dim?";opacity:.3":"")+'" title="'+
+          escapeAttr((c.name||"sem nome")+why)+'"></i>';
+      }).join("");
+    var extra = (p.colors||[]).length > 7 ? '<span style="font-size:.62rem;color:var(--ink-soft);">+'+((p.colors.length)-7)+'</span>' : '';
+    var pr = priceRange(p);
+    html += '<div class="card'+(bulkMode?" bulk-on":"")+(bulkSelected[p.id]?" selected":"")+
+      (p.active===false?" inactive-prod":"")+'" data-id="'+p.id+'">'+
+      '<div class="checkwrap"><input type="checkbox" data-check="'+p.id+'" '+(bulkSelected[p.id]?"checked":"")+'></div>'+
+      (p.featured ? '<div class="star ui-icon" aria-hidden="true">'+ICONS.star+'</div>' : '') +
+      '<div class="media" style="--swatch:'+(p.sw||"#F1E4C8")+'">'+ media +
+        (p.badge ? '<span class="badgechip">'+escapeHtml(p.badge)+'</span>' : '') +
+        (soldOut ? '<div class="oos">Esgotado</div>' : '') +
+      '</div>'+
+      '<div class="body">'+
+        '<span class="cat">'+escapeHtml(p.cat||"")+'</span>'+
+        (p.ref ? '<span class="ref">REF: '+escapeHtml(p.ref)+'</span>' : '') +
+        '<h4>'+escapeHtml(p.name)+'</h4>'+
+        (p.model ? '<span class="model">'+escapeHtml(p.model)+'</span>' : '') +
+        (swatches ? '<div class="swatches">'+swatches+extra+'</div>' : '') +
+        '<div class="price-row">'+
+          (p.old ? '<span class="old">R$ '+money(p.old)+'</span>' : '') +
+          '<span class="now">'+(pr.varies
+              ? 'R$ '+money(pr.min)+' a '+money(pr.max)
+              : 'R$ '+money(p.now))+'</span>'+
+          (pct>0 && !pr.varies ? '<span class="off">'+pct+'% OFF</span>' : '') +
+        '</div>'+
+        '<span class="stock'+(soldOut||stock<=LOW_STOCK_LIMIT?" low":"")+'">'+
+          (soldOut ? "Sem estoque" : stock+" em estoque") +
+          ((p.colors||[]).length ? " · "+(p.colors.length)+" cor(es)" : "") +
+        '</span>'+
+        statusPills(p)+
+      '</div>'+
+      '<div class="actions">'+
+        '<button type="button" data-edit="'+p.id+'">Editar</button>'+
+        '<button type="button" class="del" data-del="'+p.id+'">Excluir</button>'+
+      '</div>'+
+    '</div>';
+  });
+
+  els.grid.innerHTML = html;
+
+  var addBtn = $("addProductBtn");
+  if(addBtn) addBtn.addEventListener("click", function(){ openModal(null); });
+
+  els.grid.querySelectorAll("[data-edit]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openModal(btn.getAttribute("data-edit")); });
+  });
+  els.grid.querySelectorAll("[data-del]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var id = btn.getAttribute("data-del");
+      var store = storeById(activeStoreId);
+      var p = store.products.find(function(x){ return x.id===id; });
+      if(!p) return;
+      askConfirm({
+        title: "Excluir produto",
+        text: 'Tem certeza que deseja excluir "'+p.name+'"? Essa ação pode ser desfeita logo em seguida pelo botão "Desfazer".',
+        okLabel: "Excluir",
+        onConfirm: function(){
+          pushUndo('exclusão de "'+p.name+'"');
+          store.products = store.products.filter(function(x){ return x.id!==id; });
+          saveDraft();
+          renderAll();
+          renderDashboard();
+          showToast('Produto excluído.', "Desfazer", undoLast);
+        }
+      });
+    });
+  });
+  els.grid.querySelectorAll("[data-check]").forEach(function(chk){
+    chk.addEventListener("click", function(e){ e.stopPropagation(); });
+    chk.addEventListener("change", function(){
+      var id = chk.getAttribute("data-check");
+      if(chk.checked) bulkSelected[id] = true; else delete bulkSelected[id];
+      updateBulkBar();
+      chk.closest(".card").classList.toggle("selected", chk.checked);
+    });
+  });
+}
+
+function escapeAttr(s){ return escapeHtml(s); }
+
+function renderAll(){
+  var store = storeById(activeStoreId);
+  if(!store) return;
+  renderCatToolbar(store);
+  renderGrid(store);
+}
+
+/* ============================================================
+   MODAL: novo / editar produto
+============================================================ */
+function openModal(productId){
+  editingProductId = productId;
+  var store = storeById(activeStoreId);
+  var p = productId ? store.products.find(function(x){ return x.id===productId; }) : null;
+
+  $("modalTitle").textContent = p ? "Editar produto" : "Novo produto";
+  switchProdTab("geral");
+
+  var catSel = $("fCat");
+  catSel.innerHTML = (store.categories||[]).map(function(c){ return '<option value="'+escapeAttr(c)+'">'+escapeHtml(c)+'</option>'; }).join("");
+  if(activeCat!=="Todos" && !p) catSel.value = activeCat;
+
+  $("fName").value = p ? p.name : "";
+  if(p) catSel.value = p.cat;
+  $("fRef").value = p ? (p.ref||"") : "";
+  $("fOld").value = p && p.old ? p.old : "";
+  $("fNow").value = p ? p.now : "";
+  $("fStock").value = p ? p.stock : "";
+  $("fSizes").value = p && p.sizes ? p.sizes.join(", ") : "";
+  $("fModel").value = p ? (p.model||"") : "";
+  $("fGroup").value = p ? (p.groupId||"") : "";
+  var attrs = (p && p.attrs) || {};
+  $("fLavagem").value = attrs.lavagem||"";
+  $("fCorte").value = attrs.corte||"";
+  $("fMaterial").value = attrs.material||"";
+  $("fModelagem").value = attrs.modelagem||"";
+  $("fEstampa").value = attrs.estampa||"";
+  $("fColecao").value = attrs.colecao||"";
+  $("fFeatured").checked = !!(p && p.featured);
+  $("fActive").checked = p ? (p.active !== false) : true;
+  $("fBadge").value = p ? (p.badge||"") : "";
+  $("fOrder").value = p ? (p.order||0) : (store.products.length+1);
+
+  renderBadgeChips("badgeChips", $("fBadge").value, function(v){ $("fBadge").value = v; });
+
+  pendingImg = p ? (p.img || null) : null;
+  refreshImgPreview();
+
+  /* cópia profunda: edições só valem depois de "Salvar produto" */
+  productColors = p && p.colors ? JSON.parse(JSON.stringify(p.colors)).map(normalizeColor) : [];
+  colorImgTargetIdx = null;
+  renderColorList();
+  toggleStockHint();
+  refreshWppPanel();
+
+  els.overlay.classList.add("open");
+}
+function closeModal(){
+  els.overlay.classList.remove("open");
+  editingProductId = null;
+  pendingImg = null;
+  productColors = [];
+}
+function refreshImgPreview(){
+  var prev = $("imgPreview");
+  var removeBtn = $("removeImgBtn");
+  if(pendingImg){
+    prev.innerHTML = '<img src="'+pendingImg+'">';
+    removeBtn.style.display = "block";
+  } else {
+    prev.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--brass-deep)"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="m21 15-5-5-9 9"/></svg>';
+    removeBtn.style.display = "none";
+  }
+}
+function resizeImageFile(file, maxSize, cb){
+  var reader = new FileReader();
+  reader.onload = function(){
+    var img = new Image();
+    img.onload = function(){
+      var w = img.width, h = img.height;
+      if(w > h && w > maxSize){ h = Math.round(h * maxSize/w); w = maxSize; }
+      else if(h > maxSize){ w = Math.round(w * maxSize/h); h = maxSize; }
+      var canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      cb(canvas.toDataURL("image/jpeg", 0.82));
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+function handleProductImgUpload(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  resizeImageFile(file, 900, function(dataUrl){ pendingImg = dataUrl; refreshImgPreview(); });
+  e.target.value = "";
+}
+
+function toggleStockHint(){
+  var hasColors = productColors.length > 0;
+  $("stockHint").style.display = hasColors ? "block" : "none";
+  $("fStock").disabled = hasColors;
+  $("fSizes").disabled = hasColors;
+  $("fStock").style.opacity = hasColors ? .5 : 1;
+  $("fSizes").style.opacity = hasColors ? .5 : 1;
+}
+
+function renderBadgeChips(containerId, current, onPick){
+  var el = $(containerId);
+  el.innerHTML = BADGE_PRESETS.map(function(b){
+    return '<button type="button" class="chip-toggle'+(current===b?" on":"")+'" data-b="'+escapeAttr(b)+'">'+b+'</button>';
+  }).join("");
+  el.querySelectorAll(".chip-toggle").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var v = btn.getAttribute("data-b");
+      el.querySelectorAll(".chip-toggle").forEach(function(x){ x.classList.remove("on"); });
+      btn.classList.add("on");
+      onPick(v);
+    });
+  });
+}
+
+/* ============================================================
+   CORES / VARIAÇÕES  (núcleo do produto — não é enfeite)
+   Cada cor carrega SKU, qualidade, preço, imagem, status,
+   ordem e a grade tamanho -> estoque.
+============================================================ */
+var QUALITY_PRESETS = ["Premium","Padrão","Econômica","Primeira linha","Importada"];
+var SIZE_PRESETS = {
+  "Numérico adulto": ["36","38","40","42","44","46"],
+  "Letras": ["PP","P","M","G","GG"],
+  "Infantil": ["2","4","6","8","10","12"]
+};
+var colorImgTargetIdx = null;
+
+function addColorRow(color){
+  var c = normalizeColor(color || {
+    name:"", hex:"#C9A46A", img:null, sku:"", quality:"", price:0, active:true, sizeStock:[]
+  }, productColors.length);
+  c.order = productColors.length;
+  productColors.push(c);
+  renderColorList();
+  toggleStockHint();
+  // leva o foco direto para o nome da cor recém-criada
+  setTimeout(function(){
+    var last = $("colorList").querySelector('.color-item[data-cidx="'+(productColors.length-1)+'"] .cName');
+    if(last) last.focus();
+  }, 30);
+}
+
+/* Duplicar é o atalho que mais economiza tempo: mesma grade, outra cor. */
+function duplicateColorRow(idx){
+  var src = productColors[idx];
+  if(!src) return;
+  var copy = JSON.parse(JSON.stringify(src));
+  copy.id = uid("cor");
+  copy.name = src.name ? src.name + " (cópia)" : "";
+  copy.sku = "";
+  copy.img = null;                         // a foto é específica da cor original
+  copy.order = productColors.length;
+  copy.sizeStock = (src.sizeStock||[]).map(function(ss){ return { size:ss.size, stock:0 }; });
+  productColors.splice(idx+1, 0, copy);
+  reindexColors();
+  renderColorList();
+  toggleStockHint();
+}
+
+function moveColor(idx, dir){
+  var to = idx + dir;
+  if(to < 0 || to >= productColors.length) return;
+  var tmp = productColors[idx];
+  productColors[idx] = productColors[to];
+  productColors[to] = tmp;
+  reindexColors();
+  renderColorList();
+}
+function reindexColors(){
+  productColors.forEach(function(c,i){ c.order = i; });
+}
+
+function renderColorList(){
+  var wrap = $("colorList");
+  if(!productColors.length){
+    wrap.innerHTML = '<div class="hint" style="margin:0;">Nenhuma cor cadastrada ainda. '+
+      'Sem cores, o produto usa o estoque e os tamanhos únicos da aba <b>Geral</b> — exatamente como funcionava antes.</div>';
+    updateColorSummary();
+    return;
+  }
+
+  wrap.innerHTML = productColors.map(function(c, idx){
+    var total = colorStock(c);
+    var sizesHtml = (c.sizeStock||[]).map(function(ss, sidx){
+      var zero = (Number(ss.stock)||0) <= 0;
+      return '<div class="ss'+(zero?" zero":"")+'">'+
+        '<button type="button" class="xs" data-rmsize="'+idx+'" data-sidx="'+sidx+'" title="Remover tamanho">×</button>'+
+        '<label>'+escapeHtml(ss.size)+'</label>'+
+        '<input type="number" min="0" step="1" value="'+(Number(ss.stock)||0)+'" data-cidx="'+idx+'" data-sidx="'+sidx+'" class="ssInput"></div>';
+    }).join("");
+
+    var presetBtns = Object.keys(SIZE_PRESETS).map(function(k){
+      return '<button type="button" class="preset" data-preset="'+escapeAttr(k)+'" data-cidx="'+idx+'">+ '+escapeHtml(k)+'</button>';
+    }).join("");
+
+    var thumb = c.img
+      ? '<img src="'+c.img+'" alt=""><button type="button" class="x" data-rmimg="'+idx+'" title="Remover foto">×</button>'
+      : 'Foto<br>da cor';
+
+    return '<div class="color-item'+(c.active===false?" off":"")+'" data-cidx="'+idx+'">'+
+      '<div class="chead">'+
+        '<div class="cthumb" data-pickimg="'+idx+'" title="Foto exclusiva desta cor">'+thumb+'</div>'+
+        '<input type="color" value="'+escapeAttr(c.hex||"#C9A46A")+'" class="cHex" data-cidx="'+idx+'" title="Cor do swatch">'+
+        '<input type="text" placeholder="Nome da cor (ex: Azul marinho)" value="'+escapeAttr(c.name||"")+'" class="cName" data-cidx="'+idx+'">'+
+        '<button type="button" class="mini" data-mv="'+idx+'" data-dir="-1" title="Subir">↑</button>'+
+        '<button type="button" class="mini" data-mv="'+idx+'" data-dir="1" title="Descer">↓</button>'+
+      '</div>'+
+
+      '<div class="cgrid">'+
+        '<div class="cf"><label>SKU / código</label>'+
+          '<input type="text" class="cSku" data-cidx="'+idx+'" value="'+escapeAttr(c.sku||"")+'" placeholder="'+escapeAttr(skuFor({ref:$("fRef").value},c,""))+'"></div>'+
+        '<div class="cf"><label>Qualidade</label>'+
+          '<input type="text" class="cQual" list="qualityPresets" data-cidx="'+idx+'" value="'+escapeAttr(c.quality||"")+'" placeholder="Premium"></div>'+
+        '<div class="cf"><label>Preço só desta cor</label>'+
+          '<input type="number" step="0.01" min="0" class="cPrice" data-cidx="'+idx+'" value="'+(Number(c.price)>0?c.price:"")+'" placeholder="usa o preço geral"></div>'+
+        '<div class="cf"><label>Estoque desta cor</label>'+
+          '<input type="text" value="'+total+' peça(s)" disabled style="background:var(--paper-dim);font-family:var(--font-m);"></div>'+
+      '</div>'+
+
+      '<div class="size-stock-row">'+ sizesHtml +'</div>'+
+      '<div class="sizeadd">'+
+        '<input type="text" class="newSize" data-cidx="'+idx+'" placeholder="Tamanho" maxlength="6">'+
+        '<button type="button" class="preset" data-addsize="'+idx+'">+ Adicionar</button>'+
+        presetBtns +
+      '</div>'+
+
+      '<div class="cfoot">'+
+        '<button type="button" class="mini '+(c.active===false?"off":"on")+'" data-toggle="'+idx+'">'+
+          (c.active===false ? "Inativa — não aparece no site" : "Ativa no site")+'</button>'+
+        '<button type="button" class="mini" data-dup="'+idx+'">Duplicar cor</button>'+
+        '<button type="button" class="mini" data-rmcolor="'+idx+'" style="color:var(--danger);">Remover</button>'+
+        '<span class="tot'+(total<=0?" zero":"")+'">total <b>'+total+'</b></span>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+
+  bindColorListEvents(wrap);
+  updateColorSummary();
+}
+
+function bindColorListEvents(wrap){
+  /* edição inline: atualiza o modelo sem re-renderizar (não perde o foco) */
+  wrap.querySelectorAll(".cHex").forEach(function(inp){
+    inp.addEventListener("input", function(){ productColors[+inp.dataset.cidx].hex = inp.value; });
+  });
+  wrap.querySelectorAll(".cName").forEach(function(inp){
+    inp.addEventListener("input", function(){ productColors[+inp.dataset.cidx].name = inp.value; });
+  });
+  wrap.querySelectorAll(".cSku").forEach(function(inp){
+    inp.addEventListener("input", function(){ productColors[+inp.dataset.cidx].sku = inp.value.trim(); });
+  });
+  wrap.querySelectorAll(".cQual").forEach(function(inp){
+    inp.addEventListener("input", function(){ productColors[+inp.dataset.cidx].quality = inp.value.trim(); });
+  });
+  wrap.querySelectorAll(".cPrice").forEach(function(inp){
+    inp.addEventListener("input", function(){ productColors[+inp.dataset.cidx].price = parseFloat(inp.value) || 0; });
+  });
+  wrap.querySelectorAll(".ssInput").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var c = productColors[+inp.dataset.cidx];
+      c.sizeStock[+inp.dataset.sidx].stock = Math.max(0, parseInt(inp.value,10) || 0);
+      inp.closest(".ss").classList.toggle("zero", c.sizeStock[+inp.dataset.sidx].stock <= 0);
+      var foot = inp.closest(".color-item").querySelector(".tot");
+      var t = colorStock(c);
+      foot.innerHTML = "total <b>"+t+"</b>";
+      foot.classList.toggle("zero", t<=0);
+      updateColorSummary();
+    });
+  });
+
+  /* ações estruturais: re-renderizam a lista */
+  wrap.querySelectorAll("[data-rmcolor]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var idx = +btn.dataset.rmcolor;
+      var c = productColors[idx];
+      var label = c.name || "sem nome";
+      askConfirm({
+        title: "Remover cor",
+        text: 'Remover a cor "'+label+'" e toda a grade de tamanhos dela deste produto?',
+        warn: colorStock(c) > 0 ? "Essa cor ainda tem "+colorStock(c)+" peça(s) em estoque." : "",
+        okLabel: "Remover cor",
+        onConfirm: function(){
+          productColors.splice(idx,1);
+          reindexColors();
+          renderColorList();
+          toggleStockHint();
+        }
+      });
+    });
+  });
+  wrap.querySelectorAll("[data-dup]").forEach(function(btn){
+    btn.addEventListener("click", function(){ duplicateColorRow(+btn.dataset.dup); });
+  });
+  wrap.querySelectorAll("[data-mv]").forEach(function(btn){
+    btn.addEventListener("click", function(){ moveColor(+btn.dataset.mv, +btn.dataset.dir); });
+  });
+  wrap.querySelectorAll("[data-toggle]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var c = productColors[+btn.dataset.toggle];
+      c.active = (c.active === false);
+      renderColorList();
+    });
+  });
+
+  /* tamanhos */
+  wrap.querySelectorAll("[data-addsize]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var idx = +btn.dataset.addsize;
+      var inp = wrap.querySelector('.newSize[data-cidx="'+idx+'"]');
+      pushSize(idx, inp.value);
+      inp.value = "";
+    });
+  });
+  wrap.querySelectorAll(".newSize").forEach(function(inp){
+    inp.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){ e.preventDefault(); pushSize(+inp.dataset.cidx, inp.value); inp.value = ""; }
+    });
+  });
+  wrap.querySelectorAll("[data-preset]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var idx = +btn.dataset.cidx;
+      SIZE_PRESETS[btn.dataset.preset].forEach(function(s){ pushSize(idx, s, true); });
+      renderColorList();
+    });
+  });
+  wrap.querySelectorAll("[data-rmsize]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      productColors[+btn.dataset.rmsize].sizeStock.splice(+btn.dataset.sidx, 1);
+      renderColorList();
+      toggleStockHint();
+    });
+  });
+
+  /* foto por cor */
+  wrap.querySelectorAll("[data-pickimg]").forEach(function(el){
+    el.addEventListener("click", function(e){
+      if(e.target.hasAttribute("data-rmimg")) return;
+      colorImgTargetIdx = +el.dataset.pickimg;
+      $("colorImgInput").click();
+    });
+  });
+  wrap.querySelectorAll("[data-rmimg]").forEach(function(btn){
+    btn.addEventListener("click", function(e){
+      e.stopPropagation();
+      productColors[+btn.dataset.rmimg].img = null;
+      renderColorList();
+    });
+  });
+}
+
+/* Adiciona um tamanho evitando duplicata na mesma cor. */
+function pushSize(idx, raw, silent){
+  var size = String(raw||"").trim().toUpperCase();
+  if(!size) return;
+  var c = productColors[idx];
+  if(!c.sizeStock) c.sizeStock = [];
+  var exists = c.sizeStock.some(function(ss){ return ss.size.toUpperCase() === size; });
+  if(exists){
+    if(!silent) showToast('O tamanho '+size+' já existe nessa cor.');
+    return;
+  }
+  c.sizeStock.push({ size:size, stock:0 });
+  c.sizeStock.sort(function(a,b){ return sizeSorter(a.size,b.size); });
+  if(!silent){ renderColorList(); toggleStockHint(); }
+}
+
+function handleColorImgUpload(e){
+  var file = e.target.files[0];
+  if(!file || colorImgTargetIdx === null) return;
+  resizeImageFile(file, 900, function(dataUrl){
+    if(productColors[colorImgTargetIdx]) productColors[colorImgTargetIdx].img = dataUrl;
+    colorImgTargetIdx = null;
+    renderColorList();
+  });
+  e.target.value = "";
+}
+
+/* ============================================================
+   WHATSAPP · LINK RASTREÁVEL · LEGENDA DO INSTAGRAM
+   O WhatsApp é o canal de fechamento: a mensagem já sai pronta
+   com produto, cor, tamanho e origem — nunca um "olá" vazio.
+============================================================ */
+function refreshWppPanel(){
+  fillWppColors();
+  fillWppSizes();
+  renderWppMessage();
+}
+function fillWppColors(){
+  var sel = $("wppColor");
+  var actives = productColors.filter(function(c){ return c.active !== false; });
+  if(!actives.length){
+    sel.innerHTML = '<option value="">Sem cor cadastrada</option>';
+    sel.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  sel.innerHTML = actives.map(function(c){
+    var i = productColors.indexOf(c);
+    var out = colorStock(c) <= 0 ? " (sem estoque)" : "";
+    return '<option value="'+i+'">Cor: '+escapeHtml(c.name || "sem nome")+out+'</option>';
+  }).join("");
+}
+function fillWppSizes(){
+  var sel = $("wppSize");
+  var c = currentWppColor();
+  var sizes = c ? colorAvailableSizes(c) : computeProductSizes({ colors:[], sizes:sizesFromField() });
+  if(!sizes.length){
+    sel.innerHTML = '<option value="">Sem tamanho disponível</option>';
+    sel.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  sel.innerHTML = '<option value="">Tamanho: perguntar</option>' + sizes.sort(sizeSorter).map(function(s){
+    return '<option value="'+escapeAttr(s)+'">Tamanho: '+escapeHtml(s)+'</option>';
+  }).join("");
+}
+function sizesFromField(){
+  return $("fSizes").value.split(",").map(function(s){ return s.trim(); }).filter(Boolean);
+}
+function currentWppColor(){
+  var v = $("wppColor").value;
+  return v === "" ? null : productColors[+v];
+}
+
+/* Monta de uma vez a mensagem, o link rastreável e a legenda. */
+function buildWppData(){
+  var store = storeById(activeStoreId);
+  if(!store) return null;
+  var name = $("fName").value.trim() || "este produto";
+  var c = currentWppColor();
+  var size = $("wppSize").value;
+  var origin = $("wppOrigin").value;
+  var camp = getActiveCampaignForStore(store.id);
+  var quality = c && c.quality ? c.quality : "";
+  var price = c ? colorPrice({ now: parseFloat($("fNow").value)||0 }, c) : (parseFloat($("fNow").value)||0);
+
+  /* nome comercial: "Calça Skinny Premium Azul" */
+  var full = [name, quality, c && c.name].filter(Boolean).join(" ");
+
+  var originLabel = { instagram:"no Instagram", site:"no site", whatsapp:"no WhatsApp", loja:"na loja" }[origin] || "no site";
+
+  var message = "Olá! Vi a " + full + " " + originLabel + " e gostaria de saber ";
+  message += size ? ("se vocês ainda têm o tamanho " + size + ".") : "quais tamanhos vocês têm disponíveis.";
+  if(price > 0) message += "\n\nValor que vi: R$ " + money(price) + ".";
+  var sku = skuFor({ ref:$("fRef").value, id:editingProductId }, c, size);
+  message += "\nCódigo: " + sku;
+  if(camp) message += "\nCampanha: " + camp.name;
+
+  /* link rastreável — cada canal recebe um link diferente */
+  var params = [
+    "loja="   + encodeURIComponent(store.id),
+    "p="      + encodeURIComponent(editingProductId || slugUp(name).toLowerCase()),
+    "sku="    + encodeURIComponent(sku)
+  ];
+  if(c)    params.push("cor="  + encodeURIComponent(slugUp(c.name).toLowerCase()));
+  if(size) params.push("tam="  + encodeURIComponent(size));
+  params.push("origem=" + encodeURIComponent(origin));
+  if(camp) params.push("camp=" + encodeURIComponent(camp.id));
+  var trackLink = siteBaseUrl(store) + "?" + params.join("&");
+
+  /* legenda pronta para o Instagram */
+  var sizesTxt = c ? colorAvailableSizes(c).sort(sizeSorter).join(", ") : computeProductSizes({colors:[],sizes:sizesFromField()}).join(", ");
+  var legend =
+    (camp ? "🔥 " + camp.name.toUpperCase() + "\n\n" : "✨ NOVIDADE NA LOJA\n\n") +
+    full + " chegou.\n\n" +
+    (quality ? "✨ Qualidade " + quality + "\n" : "") +
+    (c && c.name ? "✨ Cor " + c.name + "\n" : "") +
+    (sizesTxt ? "✨ Tamanhos " + sizesTxt + "\n" : "") +
+    (price > 0 ? "✨ R$ " + money(price) + "\n" : "") +
+    "\nQuer conferir a disponibilidade?\nChama no WhatsApp que a gente te responde agora.\n\n" +
+    "#" + slugUp(store.badgeMain || store.name).toLowerCase().replace(/-/g,"") +
+    " #moda #" + slugUp(name).toLowerCase().replace(/-/g,"");
+
+  return {
+    phone: (store.whatsapp || "").replace(/\D/g,""),
+    message: message,
+    trackLink: trackLink,
+    legend: legend,
+    sku: sku
+  };
+}
+
+/* Base do link: usa o campo "Endereço do site" da loja; senão, a pasta atual. */
+function siteBaseUrl(store){
+  if(store && store.siteUrl){
+    return store.siteUrl.replace(/\?.*$/,"").replace(/\/?$/,"/");
+  }
+  return location.origin + location.pathname.replace(/[^/]*$/,"");
+}
+
+function renderWppMessage(){
+  var d = buildWppData();
+  if(!d){ return; }
+  $("wppPreview").textContent = d.message;
+  $("wppLink").textContent = d.trackLink;
+  var ok = !!d.phone;
+  $("wppOpenBtn").disabled = !ok;
+  $("wppOpenBtn").style.opacity = ok ? 1 : .5;
+  $("wppOpenBtn").title = ok ? "" : "Cadastre o WhatsApp da loja em Configurações.";
+}
+
+function copyText(txt, okMsg){
+  function fallback(){
+    var ta = document.createElement("textarea");
+    ta.value = txt;
+    ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); showToast(okMsg); }
+    catch(e){ showToast("Não consegui copiar. Selecione o texto e use Ctrl+C."); }
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ showToast(okMsg); }, fallback);
+  } else fallback();
+}
+
+/* Resumo ao vivo no topo da aba: o funcionário confere sem somar na mão. */
+function updateColorSummary(){
+  var el = $("colorSummary");
+  if(!el) return;
+  if(!productColors.length){ el.innerHTML = ""; return; }
+  var fake = { colors: productColors, now: parseFloat($("fNow").value)||0 };
+  var totalStock = computeProductStock(fake);
+  var grid = computeGridSizes(fake);        // tudo que foi cadastrado
+  var live = computeProductSizes(fake);     // o que realmente tem peça
+  var actives = activeColors(fake).length;
+  var pr = priceRange(fake);
+  var zerados = grid.filter(function(s){ return live.indexOf(s) === -1; });
+
+  el.innerHTML =
+    '<b>'+productColors.length+'</b> cor(es) · <b>'+actives+'</b> ativa(s) · '+
+    '<b>'+totalStock+'</b> peça(s) no total · grade: <b>'+(grid.join(", ")||"—")+'</b>'+
+    (pr.varies ? ' · preços de <b>R$ '+money(pr.min)+'</b> a <b>R$ '+money(pr.max)+'</b>' : '') +
+    (zerados.length
+      ? '<br><span style="color:var(--danger);">Sem peça no momento: '+escapeHtml(zerados.join(", "))+
+        ' — esses tamanhos não vão para o site.</span>'
+      : '');
+}
+
+function onProductFormSubmit(e){
+  e.preventDefault();
+  var store = storeById(activeStoreId);
+  var name = $("fName").value.trim();
+  var cat = $("fCat").value;
+  var oldP = parseFloat($("fOld").value) || 0;
+  var nowP = parseFloat($("fNow").value);
+  var hasColors = productColors.length > 0;
+  var stock = hasColors ? computeProductStock({colors:productColors}) : (parseInt($("fStock").value, 10) || 0);
+  var sizes = hasColors ? computeProductSizes({colors:productColors}) : $("fSizes").value.split(",").map(function(s){ return s.trim(); }).filter(Boolean);
+
+  if(!name || isNaN(nowP)){
+    alert("Preencha ao menos o nome e o preço atual.");
+    return;
+  }
+
+  var attrs = {
+    lavagem: $("fLavagem").value.trim(), corte: $("fCorte").value.trim(), material: $("fMaterial").value.trim(),
+    modelagem: $("fModelagem").value.trim(), estampa: $("fEstampa").value.trim(), colecao: $("fColecao").value.trim()
+  };
+
+  /* grava a ordem final das cores e limpa lixo antes de salvar */
+  var colorsOut = productColors.map(function(c,i){ c.order = i; return normalizeColor(c,i); })
+    .filter(function(c){ return c.name || c.sku || (c.sizeStock||[]).length; });
+
+  if(editingProductId){
+    var p = store.products.find(function(x){ return x.id===editingProductId; });
+    p.name = name; p.cat = cat; p.old = oldP; p.now = nowP; p.stock = stock;
+    p.sizes = sizes.length ? sizes : undefined;
+    p.img = pendingImg;
+    p.ref = $("fRef").value.trim();
+    p.model = $("fModel").value.trim();
+    p.groupId = $("fGroup").value.trim();
+    p.featured = $("fFeatured").checked;
+    p.active = $("fActive").checked;
+    p.badge = $("fBadge").value.trim();
+    p.order = parseInt($("fOrder").value,10) || 0;
+    p.colors = colorsOut;
+    p.attrs = attrs;
+    /* o swatch do card acompanha a primeira cor ativa, se houver */
+    var firstA = activeColors(p)[0];
+    if(firstA && firstA.hex) p.sw = firstA.hex;
+  } else {
+    if(!store.products) store.products = [];
+    var newId = store.id + "-" + Date.now();
+    var firstNew = colorsOut.filter(function(c){ return c.active !== false; })[0];
+    store.products.push({
+      id: newId, cat: cat, name: name, old: oldP, now: nowP, stock: stock,
+      icon: "shirt", sw: (firstNew && firstNew.hex) || "#F1E4C8", sizes: sizes.length ? sizes : undefined,
+      img: pendingImg, ref: $("fRef").value.trim(), model: $("fModel").value.trim(),
+      groupId: $("fGroup").value.trim(), featured: $("fFeatured").checked, badge: $("fBadge").value.trim(),
+      order: parseInt($("fOrder").value,10) || 0, colors: colorsOut, attrs: attrs,
+      active: $("fActive").checked, createdAt: Date.now()
+    });
+  }
+
+  saveDraft();
+  closeModal();
+  renderAll();
+  renderDashboard();
+  showToast("Produto salvo. Não esqueça de baixar o catalog.json quando terminar.");
+}
+
+/* ============================================================
+   CATEGORIAS: página dedicada
+============================================================ */
+function fillCatPageStoreSel(){
+  var sel = $("catPageStoreSel");
+  var current = sel.value || activeStoreId;
+  sel.innerHTML = CATALOG.map(function(s){ return '<option value="'+s.id+'">'+escapeHtml(s.name)+'</option>'; }).join("");
+  sel.value = storeById(current) ? current : (CATALOG[0] ? CATALOG[0].id : "");
+}
+function renderCategoriasPage(){
+  if(!CATALOG) return;
+  fillCatPageStoreSel();
+  var store = storeById($("catPageStoreSel").value);
+  if(!store){ $("catList").innerHTML = ""; return; }
+  var cats = store.categories || [];
+  if(!cats.length){ $("catList").innerHTML = '<div class="empty">Nenhuma categoria criada nesta loja ainda.</div>'; return; }
+
+  $("catList").innerHTML = cats.map(function(c, idx){
+    var meta = store.categoryMeta[c] || {};
+    var count = store.products.filter(function(p){ return p.cat===c; }).length;
+    var iconHtml = meta.img ? '<img src="'+meta.img+'">' : (meta.icon || '<span class="ui-icon ui-icon--title" aria-hidden="true">'+ICONS.tag+'</span>');
+    return '<div class="cat-row" draggable="true" data-idx="'+idx+'">'+
+      '<span class="drag">⠿</span>'+
+      '<div class="ico">'+iconHtml+'</div>'+
+      '<div class="flex1"><div class="nm">'+escapeHtml(c)+'</div>'+(meta.desc?'<div class="desc">'+escapeHtml(meta.desc)+'</div>':'')+'</div>'+
+      '<span class="cnt">'+count+' produto(s)</span>'+
+      '<span class="status '+(meta.active!==false?"on":"off")+'">'+(meta.active!==false?"Ativa":"Inativa")+'</span>'+
+      '<div class="rowbtns">'+
+        '<button type="button" data-editcat="'+escapeAttr(c)+'"><span class="ui-icon ui-icon--sm" aria-hidden="true">'+ICONS.edit+'</span> Editar</button>'+
+        '<button type="button" class="del" data-delcat="'+escapeAttr(c)+'">Excluir</button>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+
+  $("catList").querySelectorAll("[data-editcat]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openCatModal(btn.getAttribute("data-editcat")); });
+  });
+  $("catList").querySelectorAll("[data-delcat]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openCatDeleteFlow(btn.getAttribute("data-delcat")); });
+  });
+
+  bindCatDrag(store);
+}
+function bindCatDrag(store){
+  var rows = $("catList").querySelectorAll(".cat-row");
+  var dragIdx = null;
+  rows.forEach(function(row){
+    row.addEventListener("dragstart", function(){ dragIdx = parseInt(row.getAttribute("data-idx"),10); });
+    row.addEventListener("dragover", function(e){ e.preventDefault(); });
+    row.addEventListener("drop", function(){
+      var dropIdx = parseInt(row.getAttribute("data-idx"),10);
+      if(dragIdx===null || dragIdx===dropIdx) return;
+      var arr = store.categories;
+      var moved = arr.splice(dragIdx,1)[0];
+      arr.splice(dropIdx,0,moved);
+      saveDraft();
+      renderCategoriasPage();
+      renderAll();
+    });
+  });
+}
+
+function openCatModal(name){
+  editingCatOriginalName = name;
+  var store = storeById($("catPageStoreSel").value || activeStoreId);
+  var meta = name ? (store.categoryMeta[name]||{}) : {};
+  $("catModalTitle").textContent = name ? "Editar categoria" : "Nova categoria";
+  $("catName").value = name || "";
+  $("catDesc").value = meta.desc || "";
+  $("catIcon").value = meta.icon || "";
+  $("catActive").checked = meta.active !== false;
+  pendingCatImg = meta.img || null;
+  refreshCatImgPreview();
+  $("catOverlay").classList.add("open");
+}
+function closeCatModal(){ $("catOverlay").classList.remove("open"); editingCatOriginalName = null; pendingCatImg = null; }
+function refreshCatImgPreview(){
+  var prev = $("catImgPreview");
+  prev.innerHTML = pendingCatImg ? '<img src="'+pendingCatImg+'">' : '<span style="font-size:.65rem;color:var(--ink-soft);">sem imagem</span>';
+}
+function handleCatImgUpload(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  resizeImageFile(file, 300, function(dataUrl){ pendingCatImg = dataUrl; refreshCatImgPreview(); });
+  e.target.value = "";
+}
+function onCatSave(){
+  var store = storeById($("catPageStoreSel").value || activeStoreId);
+  var name = $("catName").value.trim();
+  if(!name){ alert("Digite um nome para a categoria."); return; }
+  if(!store.categories) store.categories = [];
+  if(!store.categoryMeta) store.categoryMeta = {};
+
+  var meta = { desc: $("catDesc").value.trim(), icon: $("catIcon").value.trim(), img: pendingCatImg, active: $("catActive").checked };
+
+  if(editingCatOriginalName){
+    if(editingCatOriginalName !== name){
+      // renomear: atualizar produtos e mapa
+      store.products.forEach(function(p){ if(p.cat===editingCatOriginalName) p.cat = name; });
+      var idx = store.categories.indexOf(editingCatOriginalName);
+      if(idx>-1) store.categories[idx] = name;
+      delete store.categoryMeta[editingCatOriginalName];
+      if(activeCat===editingCatOriginalName) activeCat = name;
+    }
+    store.categoryMeta[name] = meta;
+  } else {
+    if(store.categories.indexOf(name) === -1) store.categories.push(name);
+    store.categoryMeta[name] = meta;
+  }
+
+  saveDraft();
+  closeCatModal();
+  renderCategoriasPage();
+  renderAll();
+  showToast("Categoria salva.");
+}
+
+var pendingCatDelete = null;
+function openCatDeleteFlow(name){
+  var store = storeById($("catPageStoreSel").value || activeStoreId);
+  var count = store.products.filter(function(p){ return p.cat===name; }).length;
+  pendingCatDelete = { store:store, name:name };
+  $("catDelText").innerHTML = 'A categoria <b>"'+escapeHtml(name)+'"</b> possui <b>'+count+' produto(s)</b>. O que deseja fazer com eles?';
+  var otherCats = store.categories.filter(function(c){ return c!==name; });
+  var optionsHtml = '';
+  optionsHtml += '<label class="radio-opt sel"><input type="radio" name="catDelAction" value="move" checked> Mover para outra categoria'+
+    '<select id="catDelMoveTo">'+ otherCats.map(function(c){ return '<option value="'+escapeAttr(c)+'">'+escapeHtml(c)+'</option>'; }).join("") +'</select></label>';
+  optionsHtml += '<label class="radio-opt"><input type="radio" name="catDelAction" value="none"> Mover para "Sem categoria"</label>';
+  $("catDelOptions").innerHTML = optionsHtml;
+  $("catDelOptions").querySelectorAll(".radio-opt").forEach(function(opt){
+    opt.addEventListener("click", function(){
+      $("catDelOptions").querySelectorAll(".radio-opt").forEach(function(o){ o.classList.remove("sel"); });
+      opt.classList.add("sel");
+    });
+  });
+  $("catDelOverlay").classList.add("open");
+}
+function closeCatDelModal(){ $("catDelOverlay").classList.remove("open"); pendingCatDelete = null; }
+function onCatDeleteConfirm(){
+  if(!pendingCatDelete) return;
+  var store = pendingCatDelete.store, name = pendingCatDelete.name;
+  var action = document.querySelector('input[name="catDelAction"]:checked').value;
+  pushUndo('exclusão da categoria "'+name+'"');
+  if(action==="move"){
+    var to = $("catDelMoveTo").value;
+    store.products.forEach(function(p){ if(p.cat===name) p.cat = to; });
+  } else {
+    store.products.forEach(function(p){ if(p.cat===name) p.cat = "Sem categoria"; });
+    if(store.categories.indexOf("Sem categoria")===-1){
+      store.categories.push("Sem categoria");
+      store.categoryMeta["Sem categoria"] = { desc:"Produtos sem categoria definida", icon:"", img:null, active:true };
+    }
+  }
+  store.categories = store.categories.filter(function(c){ return c!==name; });
+  if(store.categoryMeta) delete store.categoryMeta[name];
+  if(activeCat===name) activeCat = "Todos";
+  saveDraft();
+  closeCatDelModal();
+  renderCategoriasPage();
+  renderAll();
+  renderDashboard();
+  showToast("Categoria excluída.", "Desfazer", undoLast);
+}
+
+/* ============================================================
+   CAMPANHAS: página dedicada
+============================================================ */
+function renderCampanhasPage(){
+  if(!CATALOG) return;
+  $("presetStrip").innerHTML = CAMPAIGN_PRESETS.map(function(pr, idx){
+    return '<button type="button" class="preset-pill" data-preset="'+idx+'">+ '+escapeHtml(pr.name)+'</button>';
+  }).join("");
+  $("presetStrip").querySelectorAll("[data-preset]").forEach(function(btn){
+    btn.addEventListener("click", function(){ addPresetCampaign(parseInt(btn.getAttribute("data-preset"),10)); });
+  });
+
+  if(!CAMPAIGNS.length){
+    $("campGrid").innerHTML = '<div class="empty">Nenhuma campanha criada. Escolha um modelo pronto acima ou clique em "+ Nova campanha".</div>';
+    return;
+  }
+  $("campGrid").innerHTML = CAMPAIGNS.map(function(c){
+    var on = isCampaignCurrentlyActive(c);
+    var scheduled = c.active && c.mode==="auto" && !on;
+    var statusClass = on ? "active" : (scheduled ? "scheduled" : "inactive");
+    var statusLabel = on ? "Ativa agora" : (scheduled ? "Programada" : "Inativa");
+    var colors = c.colors || DEFAULT_CAMP_COLORS;
+    return '<div class="camp-card">'+
+      '<div class="top" style="background:linear-gradient(135deg,'+colors.primary+','+colors.secondary+');">'+
+        '<div class="nm">'+escapeHtml(c.title||c.name)+'</div>'+
+        (c.subtitle ? '<div class="sub">'+escapeHtml(c.subtitle)+'</div>' : '') +
+      '</div>'+
+      '<div class="bot">'+
+        '<div class="dates">'+(c.start&&c.end ? fmtCampDate(c.start)+" – "+fmtCampDate(c.end) : (c.mode==="manual"?"Ativação manual":"Sem data definida")) +'</div>'+
+        '<div class="stbar"><span class="stpill '+statusClass+'">'+statusLabel+'</span><span style="font-size:.68rem;color:var(--ink-soft);">'+(c.stores?c.stores.length:0)+' loja(s) · prior. '+(c.priority||0)+'</span></div>'+
+        '<div class="btnrow">'+
+          '<button type="button" data-editcamp="'+c.id+'">Editar</button>'+
+          '<button type="button" class="del" data-delcamp="'+c.id+'">Excluir</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+
+  $("campGrid").querySelectorAll("[data-editcamp]").forEach(function(btn){
+    btn.addEventListener("click", function(){ openCampModal(btn.getAttribute("data-editcamp")); });
+  });
+  $("campGrid").querySelectorAll("[data-delcamp]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var id = btn.getAttribute("data-delcamp");
+      var c = campById(id);
+      if(!c) return;
+      askConfirm({
+        title:"Excluir campanha",
+        text:'Excluir a campanha "'+c.name+'"? Ela deixará de aparecer nas lojas participantes.',
+        okLabel:"Excluir",
+        onConfirm:function(){
+          pushUndo('exclusão da campanha "'+c.name+'"');
+          CAMPAIGNS = CAMPAIGNS.filter(function(x){ return x.id!==id; });
+          saveDraft();
+          renderCampanhasPage();
+          renderDashboard();
+          showToast("Campanha excluída.", "Desfazer", undoLast);
+        }
+      });
+    });
+  });
+}
+function fmtCampDate(str){
+  if(str.indexOf("--")===0){ var mmdd = str.slice(2).split("-"); return mmdd[1]+"/"+mmdd[0]; }
+  return str;
+}
+function addPresetCampaign(idx){
+  var pr = CAMPAIGN_PRESETS[idx];
+  var c = {
+    id: uid("camp"), name: pr.name, title: pr.title, subtitle: pr.subtitle, button: "Ver ofertas",
+    discount: "", banner: null, decor: "",
+    mode: "auto", start: pr.start, end: pr.end, priority: 5, active: true,
+    colors: JSON.parse(JSON.stringify(pr.colors)),
+    stores: CATALOG.map(function(s){ return s.id; })
+  };
+  CAMPAIGNS.push(c);
+  saveDraft();
+  renderCampanhasPage();
+  openCampModal(c.id);
+}
+
+function openCampModal(id){
+  editingCampId = id;
+  var c = id ? campById(id) : null;
+  $("campModalTitle").textContent = c ? "Editar campanha" : "Nova campanha";
+  switchCampTab("geral");
+  $("cpName").value = c ? c.name : "";
+  $("cpTitle").value = c ? (c.title||"") : "";
+  $("cpSubtitle").value = c ? (c.subtitle||"") : "";
+  $("cpButton").value = c ? (c.button||"Ver ofertas") : "Ver ofertas";
+  $("cpDiscount").value = c ? (c.discount||"") : "";
+  $("cpDecor").value = c ? (c.decor||"") : "";
+  $("cpMode").value = c ? (c.mode||"auto") : "auto";
+  $("cpStart").value = c && c.start ? (c.start.indexOf("--")===0 ? c.start.slice(2) : c.start) : "";
+  $("cpEnd").value = c && c.end ? (c.end.indexOf("--")===0 ? c.end.slice(2) : c.end) : "";
+  $("cpPriority").value = c ? (c.priority||5) : 5;
+  $("cpActive").checked = c ? c.active!==false : true;
+  pendingCampImg = c ? (c.banner||null) : null;
+  refreshCampImgPreview();
+  renderCampColorPickers(c ? (c.colors||DEFAULT_CAMP_COLORS) : DEFAULT_CAMP_COLORS);
+  renderCampStoreChecks(c ? (c.stores||[]) : CATALOG.map(function(s){return s.id;}));
+  $("campOverlay").classList.add("open");
+}
+function closeCampModal(){ $("campOverlay").classList.remove("open"); editingCampId = null; pendingCampImg = null; }
+function refreshCampImgPreview(){
+  $("cpImgPreview").innerHTML = pendingCampImg ? '<img src="'+pendingCampImg+'">' :
+    '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--brass-deep)"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="m21 15-5-5-9 9"/></svg>';
+}
+function handleCampImgUpload(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  resizeImageFile(file, 1200, function(dataUrl){ pendingCampImg = dataUrl; refreshCampImgPreview(); });
+  e.target.value = "";
+}
+var CAMP_COLOR_LABELS = [
+  ["primary","Cor principal"],["secondary","Cor secundária"],["accent","Cor de destaque"],
+  ["bg","Cor de fundo"],["text","Cor dos textos"],["button","Cor dos botões"],
+  ["badge","Cor dos badges"],["price","Cor dos preços"],["discount","Cor do desconto"]
+];
+var currentCampColors = {};
+function renderCampColorPickers(colors){
+  currentCampColors = JSON.parse(JSON.stringify(colors));
+  $("campColorGrid").innerHTML = CAMP_COLOR_LABELS.map(function(pair){
+    var key = pair[0], label = pair[1];
+    var val = currentCampColors[key] || "#C9A46A";
+    return '<div class="cp-item"><label>'+label+'</label>'+
+      '<input type="color" value="'+val+'" data-ck="'+key+'" class="cpColor">'+
+      '<input type="text" value="'+val+'" data-ck="'+key+'" class="cpHex"></div>';
+  }).join("");
+  $("campColorGrid").querySelectorAll(".cpColor").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      currentCampColors[inp.getAttribute("data-ck")] = inp.value;
+      var hexInp = $("campColorGrid").querySelector('.cpHex[data-ck="'+inp.getAttribute("data-ck")+'"]');
+      hexInp.value = inp.value;
+    });
+  });
+  $("campColorGrid").querySelectorAll(".cpHex").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var v = inp.value.trim();
+      if(/^#[0-9a-fA-F]{6}$/.test(v)){
+        currentCampColors[inp.getAttribute("data-ck")] = v;
+        var colorInp = $("campColorGrid").querySelector('.cpColor[data-ck="'+inp.getAttribute("data-ck")+'"]');
+        colorInp.value = v;
+      }
+    });
+  });
+}
+function renderCampStoreChecks(selected){
+  $("campStoreChecks").innerHTML = CATALOG.map(function(s){
+    var checked = selected.indexOf(s.id) !== -1;
+    return '<label class="store-check"><input type="checkbox" value="'+s.id+'" '+(checked?"checked":"")+'> '+escapeHtml(s.name)+'</label>';
+  }).join("");
+}
+function normalizeCampDate(v){
+  v = (v||"").trim();
+  if(!v) return undefined;
+  if(v.indexOf("--")===0) return v;
+  if(/^\d{1,2}-\d{1,2}$/.test(v)){
+    var parts = v.split("-");
+    var mm = parts[0].padStart(2,"0"), dd = parts[1].padStart(2,"0");
+    return "--"+mm+"-"+dd;
+  }
+  return v; // AAAA-MM-DD ou outro formato já válido
+}
+function onCampSave(){
+  var name = $("cpName").value.trim();
+  if(!name){ alert("Digite um nome para a campanha."); return; }
+  var stores = Array.prototype.slice.call($("campStoreChecks").querySelectorAll("input:checked")).map(function(i){ return i.value; });
+  var mode = $("cpMode").value;
+  var start = normalizeCampDate($("cpStart").value), end = normalizeCampDate($("cpEnd").value);
+
+  var data = {
+    id: editingCampId || uid("camp"),
+    name: name,
+    title: $("cpTitle").value.trim() || name,
+    subtitle: $("cpSubtitle").value.trim(),
+    button: $("cpButton").value.trim() || "Ver ofertas",
+    discount: $("cpDiscount").value.trim(),
+    banner: pendingCampImg,
+    decor: $("cpDecor").value.trim(),
+    mode: mode,
+    start: start || undefined,
+    end: end || undefined,
+    priority: parseInt($("cpPriority").value,10) || 5,
+    active: $("cpActive").checked,
+    colors: currentCampColors,
+    stores: stores
+  };
+
+  if(editingCampId){
+    var idx = CAMPAIGNS.findIndex(function(c){ return c.id===editingCampId; });
+    if(idx>-1) CAMPAIGNS[idx] = data; else CAMPAIGNS.push(data);
+  } else {
+    CAMPAIGNS.push(data);
+  }
+  saveDraft();
+  closeCampModal();
+  renderCampanhasPage();
+  renderDashboard();
+  showToast("Campanha salva.");
+}
+
+/* ============================================================
+   EDIÇÃO EM MASSA
+============================================================ */
+function toggleBulkMode(){
+  bulkMode = !bulkMode;
+  bulkSelected = {};
+  $("bulkToggleBtn").classList.toggle("on", bulkMode);
+  renderAll();
+  updateBulkBar();
+}
+function updateBulkBar(){
+  var count = Object.keys(bulkSelected).length;
+  $("bulkBar").classList.toggle("show", bulkMode);
+  $("bulkCount").textContent = count + " selecionado(s)";
+}
+function bulkSelectAll(){
+  var store = storeById(activeStoreId);
+  var list = (store.products||[]).filter(function(p){ return activeCat==="Todos" || p.cat===activeCat; });
+  list.forEach(function(p){ bulkSelected[p.id] = true; });
+  renderAll();
+  updateBulkBar();
+}
+function bulkSelectNone(){ bulkSelected = {}; renderAll(); updateBulkBar(); }
+function getSelectedProducts(){
+  var store = storeById(activeStoreId);
+  return store.products.filter(function(p){ return bulkSelected[p.id]; });
+}
+function bulkDeleteSelected(){
+  var sel = getSelectedProducts();
+  if(!sel.length){ showToast("Nenhum produto selecionado."); return; }
+  askConfirm({
+    title:"Excluir produtos selecionados",
+    text:"Tem certeza que deseja excluir "+sel.length+" produto(s)? Essa ação pode ser desfeita em seguida.",
+    warn: sel.length+" produto(s) serão removidos permanentemente do catalog.json ao exportar.",
+    okLabel:"Excluir todos",
+    onConfirm:function(){
+      pushUndo("exclusão em massa de "+sel.length+" produto(s)");
+      var store = storeById(activeStoreId);
+      var ids = Object.keys(bulkSelected);
+      store.products = store.products.filter(function(p){ return ids.indexOf(p.id)===-1; });
+      bulkSelected = {};
+      saveDraft();
+      renderAll();
+      renderDashboard();
+      showToast("Produtos excluídos.", "Desfazer", undoLast);
+    }
+  });
+}
+/* Ativar/inativar em massa — nunca apaga nada, só muda a visibilidade. */
+function bulkSetActive(on){
+  var sel = getSelectedProducts();
+  if(!sel.length){ showToast("Selecione ao menos um produto."); return; }
+  pushUndo((on ? "ativação" : "inativação") + " de " + sel.length + " produto(s)");
+  sel.forEach(function(p){ p.active = on; });
+  saveDraft();
+  renderAll();
+  renderDashboard();
+  showToast(sel.length + " produto(s) " + (on ? "ativados." : "retirados do site."), "Desfazer", undoLast);
+}
+
+function bulkMarkFeatured(){
+  var sel = getSelectedProducts();
+  if(!sel.length){ showToast("Nenhum produto selecionado."); return; }
+  pushUndo("marcação de destaque em massa");
+  sel.forEach(function(p){ p.featured = true; });
+  saveDraft();
+  renderAll();
+  renderDashboard();
+  showToast(sel.length+" produto(s) marcados como destaque.", "Desfazer", undoLast);
+}
+function openBulkCatModal(){
+  var sel = getSelectedProducts();
+  if(!sel.length){ showToast("Nenhum produto selecionado."); return; }
+  var store = storeById(activeStoreId);
+  $("bulkCatText").textContent = sel.length+" produto(s) selecionados receberão a nova categoria.";
+  $("bulkCatSelect").innerHTML = (store.categories||[]).map(function(c){ return '<option value="'+escapeAttr(c)+'">'+escapeHtml(c)+'</option>'; }).join("");
+  $("bulkCatOverlay").classList.add("open");
+}
+function closeBulkCatModal(){ $("bulkCatOverlay").classList.remove("open"); }
+function onBulkCatConfirm(){
+  var sel = getSelectedProducts();
+  var to = $("bulkCatSelect").value;
+  pushUndo("alteração de categoria em massa");
+  sel.forEach(function(p){ p.cat = to; });
+  saveDraft();
+  closeBulkCatModal();
+  renderAll();
+  renderDashboard();
+  showToast(sel.length+' produto(s) movidos para "'+to+'".', "Desfazer", undoLast);
+}
+function openBulkBadgeModal(){
+  var sel = getSelectedProducts();
+  if(!sel.length){ showToast("Nenhum produto selecionado."); return; }
+  $("bulkBadgeCustom").value = "";
+  renderBadgeChips("bulkBadgeChips", "", function(v){ $("bulkBadgeCustom").value = v; });
+  $("bulkBadgeOverlay").classList.add("open");
+}
+function closeBulkBadgeModal(){ $("bulkBadgeOverlay").classList.remove("open"); }
+function onBulkBadgeConfirm(){
+  var sel = getSelectedProducts();
+  var badge = $("bulkBadgeCustom").value.trim();
+  pushUndo("aplicação de badge em massa");
+  sel.forEach(function(p){ p.badge = badge; });
+  saveDraft();
+  closeBulkBadgeModal();
+  renderAll();
+  renderDashboard();
+  showToast(sel.length+" produto(s) atualizados.", "Desfazer", undoLast);
+}
+
+/* ============================================================
+   BUSCA GLOBAL
+============================================================ */
+function onGlobalSearch(){
+  var q = $("globalSearch").value.trim().toLowerCase();
+  var box = $("gsearchResults");
+  if(!q){ box.classList.remove("open"); return; }
+  var results = [];
+  CATALOG.forEach(function(s){
+    s.products.forEach(function(p){
+      var hay = [p.name,p.ref,p.cat,p.groupId,p.model,s.name,
+        (p.colors||[]).map(function(c){ return [c.name,c.sku,c.quality].join(" "); }).join(" "),
+        (p.sizes||[]).join(" ")].join(" ").toLowerCase();
+      if(hay.indexOf(q) !== -1) results.push({s:s,p:p});
+    });
+  });
+  if(!results.length){ box.innerHTML = '<div class="empty">Nenhum resultado para "'+escapeHtml(q)+'".</div>'; box.classList.add("open"); return; }
+  box.innerHTML = results.slice(0,20).map(function(r){
+    var img = r.p.img ? '<img src="'+r.p.img+'">' : '<img src="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2734%27 height=%2734%27/%3E">';
+    return '<div class="gr-item" data-storeid="'+r.s.id+'" data-prodid="'+r.p.id+'">'+img+
+      '<div><div style="font-weight:700;font-size:.8rem;">'+escapeHtml(r.p.name)+'</div>'+
+      '<div class="meta">'+escapeHtml(r.s.name)+' · '+escapeHtml(r.p.cat||"")+(r.p.ref?' · REF '+escapeHtml(r.p.ref):'')+'</div></div>'+
+    '</div>';
+  }).join("");
+  box.classList.add("open");
+  box.querySelectorAll(".gr-item").forEach(function(item){
+    item.addEventListener("click", function(){
+      activeStoreId = item.getAttribute("data-storeid");
+      activeCat = "Todos";
+      switchPage("catalogo");
+      renderStoreTabs();
+      renderAll();
+      openModal(item.getAttribute("data-prodid"));
+      box.classList.remove("open");
+      $("globalSearch").value = "";
+    });
+  });
+}
+
+/* ============================================================
+   CONFIGURAÇÕES DA LOJA (identidade fixa)
+============================================================ */
+function renderConfigPage(){
+  if(!CATALOG) return;
+  var sel = $("cfgStoreSel");
+  var current = sel.value || activeStoreId;
+  sel.innerHTML = CATALOG.map(function(s){ return '<option value="'+s.id+'">'+escapeHtml(s.name)+'</option>'; }).join("");
+  sel.value = storeById(current) ? current : CATALOG[0].id;
+  if(!sel._bound){ sel.addEventListener("change", renderConfigPanel); sel._bound = true; }
+  renderConfigPanel();
+}
+function renderConfigPanel(){
+  var s = storeById($("cfgStoreSel").value);
+  if(!s) return;
+  var t = s.theme || {p:"#C9A46A",pd:"#A9803F",dark:"#15131F",pale:"#F1E4C8"};
+  $("cfgPanel").innerHTML =
+    '<div class="field row2"><div><label>Nome da loja</label><input type="text" id="cfgName" value="'+escapeAttr(s.name)+'"></div>'+
+    '<div><label>Tag (região)</label><input type="text" id="cfgTag" value="'+escapeAttr(s.tag||"")+'"></div></div>'+
+    '<div class="field row2"><div><label>WhatsApp (somente números, com DDI)</label><input type="text" id="cfgWhats" value="'+escapeAttr(s.whatsapp||"")+'"></div>'+
+    '<div><label>Endereço do site (usado nos links rastreáveis)</label><input type="text" id="cfgSite" value="'+escapeAttr(s.siteUrl||"")+'" placeholder="https://minhaloja.com.br/"></div></div>'+
+    '<div class="field"><label>Frase de efeito (tagline)</label><input type="text" id="cfgTagline" value="'+escapeAttr(s.tagline||"")+'"></div>'+
+    '<div class="field"><label>Texto do hero</label><textarea id="cfgHero">'+escapeHtml(s.heroLede||"")+'</textarea></div>'+
+    '<div class="field"><label>Cores fixas da identidade da loja</label>'+
+    '<div class="colorpicker-grid">'+
+      cfgColorPicker("cfgP","Cor primária",t.p)+cfgColorPicker("cfgPd","Cor primária escura",t.pd)+
+      cfgColorPicker("cfgDark","Cor escura",t.dark)+cfgColorPicker("cfgPale","Cor clara",t.pale)+
+    '</div></div>'+
+    '<div class="modal-actions" style="margin-top:6px;"><button type="button" class="btn-save" id="cfgSaveBtn" style="flex:none;padding:10px 22px;">Salvar identidade da loja</button></div>';
+  $("cfgSaveBtn").addEventListener("click", function(){
+    s.name = $("cfgName").value.trim() || s.name;
+    s.tag = $("cfgTag").value.trim();
+    s.whatsapp = $("cfgWhats").value.trim();
+    s.siteUrl = $("cfgSite").value.trim();
+    s.tagline = $("cfgTagline").value.trim();
+    s.heroLede = $("cfgHero").value.trim();
+    s.theme = { p:$("cfgP_color").value, pd:$("cfgPd_color").value, dark:$("cfgDark_color").value, pale:$("cfgPale_color").value };
+    saveDraft();
+    renderStoreTabs();
+    renderDashboard();
+    showToast("Identidade da loja atualizada.");
+  });
+}
+function cfgColorPicker(id, label, val){
+  return '<div class="cp-item"><label>'+label+'</label><input type="color" id="'+id+'_color" value="'+val+'"><input type="text" id="'+id+'_hex" value="'+val+'"></div>';
+}
+
+/* ============================================================
+   START
+============================================================ */
+init();
+</script>
+</body>
+</html>
